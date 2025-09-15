@@ -3,31 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeBase Admin</title>
+    <title>HomeBase</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="light-theme">
     <div class="container">
-        <h1>HomeBase Admin Dashboard</h1>
-        <div class="subscription-status" id="subscription-info">
-            <!-- Subscription info will be loaded here -->
+        <div class="header">
+            <h1><a href="signup.html" style="color: inherit; text-decoration: none;">HomeBase</a></h1>
+            <a href="login.html" class="admin-link" title="Admin">⚙️</a>
         </div>
-        <nav>
-            <a href="profile.html">Public Page</a> |
-            <a href="analytics.html">Analytics</a> |
-            <a href="activity.html">Activity</a> |
-            <a href="customize.html">Customize</a> |
-            <a href="subscription.html">Subscription</a> |
-            <a href="billing.html">Billing</a>
-        </nav>
-        <h2>Manage Links</h2>
-        <div id="add-link-section">
-            <input type="url" id="link-url" placeholder="URL (e.g., https://instagram.com/username)">
-            <button id="add-link-btn">Add Link</button>
-        </div>
-        <div class="links" id="admin-links">
-            <!-- Links will be loaded here -->
-        </div>
+        <p>Welcome to my HomeBase. Click the links below to visit my profiles.</p>
         
         <!-- Theme Selector -->
         <div class="theme-selector">
@@ -45,9 +30,14 @@
             </select>
         </div>
         
-        <button id="logout-btn">Logout</button>
+        <div id="add-link-section" style="display: none; margin: 20px 0;">
+            <input type="text" id="link-name" placeholder="Link Name (e.g., Instagram)">
+            <input type="url" id="link-url" placeholder="URL (e.g., https://instagram.com/username)">
+            <button id="add-link-btn">Add Link</button>
+        </div>
+        <div class="links">
+        </div>
     </div>
-
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -55,6 +45,6 @@
     
     <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
-    <script src="admin.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

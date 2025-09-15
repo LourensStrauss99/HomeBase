@@ -3,20 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HomeBase</title>
+    <title>HomeBase - Your Link Hub</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="light-theme">
+<body class="theme-default">
     <div class="container">
-        <div class="header">
-            <h1><a href="signup.html" style="color: inherit; text-decoration: none;">HomeBase</a></h1>
-            <a href="login.html" class="admin-link" title="Admin">⚙️</a>
+        <div class="landing-header">
+            <h1>🏠 HomeBase</h1>
+            <p class="tagline">Your personal link hub for all your social profiles</p>
         </div>
-        <p>Welcome to my HomeBase. Click the links below to visit my profiles.</p>
+        
+        <div class="landing-content">
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔗</div>
+                    <h3>One Link for Everything</h3>
+                    <p>Share one link that connects to all your social media profiles</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h3>Track Your Clicks</h3>
+                    <p>See which links get the most engagement with built-in analytics</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Beautiful Themes</h3>
+                    <p>Choose from 9 stunning themes to match your style</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Free to Start</h3>
+                    <p>Get started with up to 3 links, upgrade for unlimited</p>
+                </div>
+            </div>
+            
+            <div class="cta-section">
+                <h2>Ready to create your HomeBase?</h2>
+                <div class="auth-buttons">
+                    <a href="signup.html" class="btn btn-primary">Create Account</a>
+                    <a href="login.html" class="btn btn-secondary">Sign In</a>
+                </div>
+                <p class="auth-note">Already have an account? <a href="login.html">Sign in here</a></p>
+            </div>
+        </div>
         
         <!-- Theme Selector -->
         <div class="theme-selector">
-            <label for="theme-select">🎨 Choose Theme:</label>
+            <label for="theme-select">🎨 Preview Themes:</label>
             <select id="theme-select">
                 <option value="theme-default">Deep Blue</option>
                 <option value="theme-purple">Purple</option>
@@ -29,15 +62,8 @@
                 <option value="theme-cosmic">Cosmic</option>
             </select>
         </div>
-        
-        <div id="add-link-section" style="display: none; margin: 20px 0;">
-            <input type="text" id="link-name" placeholder="Link Name (e.g., Instagram)">
-            <input type="url" id="link-url" placeholder="URL (e.g., https://instagram.com/username)">
-            <button id="add-link-btn">Add Link</button>
-        </div>
-        <div class="links">
-        </div>
     </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -45,6 +71,6 @@
     
     <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
-    <script src="script.js"></script>
+    <script src="landing.js"></script>
 </body>
 </html>
