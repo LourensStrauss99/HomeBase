@@ -114,25 +114,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Load saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.body.classList.add(savedTheme);
-    }
+    const savedTheme = localStorage.getItem('theme') || 'theme-default';
+    document.body.className = savedTheme; // Replace all classes with saved theme
 
-    // Load saved background
-    const savedBg = localStorage.getItem('background');
-    if (savedBg) {
-        document.body.style.background = `url(${savedBg})`;
-        document.body.style.backgroundSize = 'cover';
-        document.body.style.backgroundPosition = 'center';
+    // Theme selector
+    const themeSelect = document.getElementById('theme-select');
+    if (themeSelect) {
+        // Set current theme in dropdown
+        themeSelect.value = savedTheme;
+        
+        // Listen for theme changes
+        themeSelect.addEventListener('change', (e) => {
+            const newTheme = e.target.value;
+            
+            // Remove all theme classes
+            document.body.className = '';
+            
+            // Add new theme class
+            document.body.classList.add(newTheme);
+            
+            // Save theme preference
+            localStorage.setItem('theme', newTheme);
+        });
     }
-
-    // Theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        document.body.classList.toggle('dark-theme');
-    });
 
     // Default links
     const defaultLinks = [
