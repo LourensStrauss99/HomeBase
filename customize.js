@@ -23,8 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load saved background
     const savedBg = localStorage.getItem('background');
     if (savedBg) {
-        document.body.style.setProperty('--bg-image', `url(${savedBg})`);
-        document.body.classList.add('custom-bg');
+        document.body.style.background = `url(${savedBg})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
     }
 
     // Theme selection
@@ -47,8 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = () => {
                 const bgUrl = reader.result;
-                document.body.style.setProperty('--bg-image', `url(${bgUrl})`);
-                document.body.classList.add('custom-bg');
+                document.body.style.background = `url(${bgUrl})`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
                 localStorage.setItem('background', bgUrl);
             };
             reader.readAsDataURL(file);
@@ -57,8 +59,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Remove background
     document.getElementById('remove-bg').addEventListener('click', () => {
-        document.body.style.removeProperty('--bg-image');
-        document.body.classList.remove('custom-bg');
+        document.body.style.background = '';
+        document.body.style.backgroundSize = '';
+        document.body.style.backgroundPosition = '';
         localStorage.removeItem('background');
     });
 });

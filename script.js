@@ -1,5 +1,54 @@
 // Add interactivity to the links
 document.addEventListener('DOMContentLoaded', () => {
+    // Social media icon detection function
+    function detectSocialIcon(url) {
+        const domain = url.toLowerCase();
+        
+        if (domain.includes('instagram.com') || domain.includes('ig.me')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg';
+        } else if (domain.includes('twitter.com') || domain.includes('x.com') || domain.includes('t.co')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/twitter.svg';
+        } else if (domain.includes('youtube.com') || domain.includes('youtu.be')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/youtube.svg';
+        } else if (domain.includes('github.com') || domain.includes('git.io')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/github.svg';
+        } else if (domain.includes('linkedin.com') || domain.includes('lnkd.in')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/linkedin.svg';
+        } else if (domain.includes('tiktok.com') || domain.includes('vm.tiktok.com')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/tiktok.svg';
+        } else if (domain.includes('facebook.com') || domain.includes('fb.me')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg';
+        } else if (domain.includes('snapchat.com') || domain.includes('snap.com')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/snapchat.svg';
+        } else if (domain.includes('discord.gg') || domain.includes('discord.com')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/discord.svg';
+        } else if (domain.includes('twitch.tv')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/twitch.svg';
+        } else if (domain.includes('spotify.com') || domain.includes('spoti.fi')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/spotify.svg';
+        } else if (domain.includes('pinterest.com') || domain.includes('pin.it')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/pinterest.svg';
+        } else if (domain.includes('reddit.com') || domain.includes('redd.it')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/reddit.svg';
+        } else if (domain.includes('telegram.me') || domain.includes('t.me')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/telegram.svg';
+        } else if (domain.includes('whatsapp.com') || domain.includes('wa.me')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg';
+        } else if (domain.includes('paypal.com') || domain.includes('paypal.me')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/paypal.svg';
+        } else if (domain.includes('venmo.com')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/venmo.svg';
+        } else if (domain.includes('cashapp.com') || domain.includes('cash.me')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/cashapp.svg';
+        } else if (domain.includes('medium.com')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/medium.svg';
+        } else if (domain.includes('substack.com')) {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/substack.svg';
+        } else {
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/link.svg'; // Generic link
+        }
+    }
+
     // Track page views
     let views = parseInt(localStorage.getItem('views')) || 0;
     views++;
@@ -14,8 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load saved background
     const savedBg = localStorage.getItem('background');
     if (savedBg) {
-        document.body.style.setProperty('--bg-image', `url(${savedBg})`);
-        document.body.classList.add('custom-bg');
+        document.body.style.background = `url(${savedBg})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
     }
 
     // Theme toggle
@@ -45,7 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const linkElement = document.createElement('a');
             linkElement.href = link.url;
             linkElement.className = 'link';
-            linkElement.innerHTML = `${link.name} <span class="count">${link.count}</span>`;
+            
+            // Get icon for the link
+            const iconSrc = link.icon || detectSocialIcon(link.url);
+            
+            linkElement.innerHTML = `
+                <img src="${iconSrc}" alt="${link.name}" class="link-icon">
+                <span class="link-text">${link.name}</span>
+                <span class="count">${link.count}</span>
+            `;
             linksContainer.appendChild(linkElement);
         });
         attachLinkEvents();

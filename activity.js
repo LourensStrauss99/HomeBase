@@ -16,8 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load saved background
     const savedBg = localStorage.getItem('background');
     if (savedBg) {
-        document.body.style.setProperty('--bg-image', `url(${savedBg})`);
-        document.body.classList.add('custom-bg');
+        document.body.style.background = `url(${savedBg})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
     }
 
     // Theme toggle
