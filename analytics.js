@@ -1,11 +1,21 @@
 // Analytics page script
 document.addEventListener('DOMContentLoaded', () => {
-    // Check login
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-        window.location.href = 'login.html';
-        return;
-    }
+    // Check Firebase authentication
+    FirebaseUtils.onAuthStateChanged((user) => {
+        if (!user) {
+            window.location.href = 'login.html';
+            return;
+        }
+        // Store user info for compatibility
+        localStorage.setItem('user', JSON.stringify({
+            uid: user.uid,
+            email: user.email
+        }));
+        // Initialize analytics
+        initializeAnalytics(user);
+    });
+
+    function initializeAnalytics(currentUser) {
 
     // Load saved theme
     const savedTheme = localStorage.getItem('theme');
@@ -81,5 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         }
+    }
     }
 });

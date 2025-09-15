@@ -106,12 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Check login
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-        window.location.href = 'login.html';
-        return;
-    }
+    // Check Firebase authentication
+    FirebaseUtils.onAuthStateChanged((user) => {
+        if (!user) {
+            // User is not authenticated, redirect to login
+            window.location.href = 'login.html';
+            return;
+        }
+        // User is authenticated, continue with admin dashboard
+        // Store user info for compatibility with existing code
+        localStorage.setItem('user', JSON.stringify({
+            uid: user.uid,
+            email: user.email
+        }));
+    });
 
     // Load saved theme
     const savedTheme = localStorage.getItem('theme') || 'theme-default';
