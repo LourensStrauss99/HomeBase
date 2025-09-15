@@ -1,0 +1,104 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+h1 {
+    margin-bottom: 10px;
+    font-size: 2.5em;
+    color: #4a4a4a;
+}
+
+p {
+    margin-bottom: 30px;
+    font-size: 1.1em;
+    color: #666;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.link {
+    display: block;
+    padding: 15px 20px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.link:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+body.light-theme {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+}
+
+body.dark-theme {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+}
+
+.dark-theme .container {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.dark-theme h1 {
+    color: white;
+}
+
+.dark-theme p {
+    color: #ccc;
+}
+
+#theme-toggle {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    font-size: 1em;
+    transition: background 0.3s ease;
+}
+
+#theme-toggle:hover {
+    background: #0056b3;
+}
+
+.count {
+    font-size: 0.8em;
+    margin-left: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 5px;
+    border-radius: 10px;
+}
