@@ -1,10 +1,15 @@
 // Login script with Firebase
 document.addEventListener('DOMContentLoaded', () => {
+    let isRedirecting = false;
+    
     // Check if user is already logged in
     FirebaseUtils.onAuthStateChanged((user) => {
-        if (user) {
+        if (user && !isRedirecting) {
             // User is signed in, redirect to admin
-            window.location.href = 'admin.html';
+            isRedirecting = true;
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 100);
         }
     });
 

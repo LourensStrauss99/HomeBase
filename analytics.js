@@ -1,18 +1,26 @@
 // Analytics page script
 document.addEventListener('DOMContentLoaded', () => {
+    let isRedirecting = false;
+    
     // Check Firebase authentication
     FirebaseUtils.onAuthStateChanged((user) => {
-        if (!user) {
-            window.location.href = 'login.html';
+        if (!user && !isRedirecting) {
+            isRedirecting = true;
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 100);
             return;
         }
-        // Store user info for compatibility
-        localStorage.setItem('user', JSON.stringify({
-            uid: user.uid,
-            email: user.email
-        }));
-        // Initialize analytics
-        initializeAnalytics(user);
+        
+        if (user) {
+            // Store user info for compatibility
+            localStorage.setItem('user', JSON.stringify({
+                uid: user.uid,
+                email: user.email
+            }));
+            // Initialize analytics
+            initializeAnalytics(user);
+        }
     });
 
     function initializeAnalytics(currentUser) {

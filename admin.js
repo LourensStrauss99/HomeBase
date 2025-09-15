@@ -106,19 +106,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    let isRedirecting = false;
+    let authCheckComplete = false;
+    
     // Check Firebase authentication
     FirebaseUtils.onAuthStateChanged((user) => {
-        if (!user) {
+        authCheckComplete = true;
+        
+        if (!user && !isRedirecting) {
             // User is not authenticated, redirect to login
-            window.location.href = 'login.html';
+            isRedirecting = true;
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 100);
             return;
         }
-        // User is authenticated, continue with admin dashboard
-        // Store user info for compatibility with existing code
-        localStorage.setItem('user', JSON.stringify({
-            uid: user.uid,
-            email: user.email
-        }));
+        
+        if (user) {
+            // User is authenticated, continue with admin dashboard
+            // Store user info for compatibility with existing code
+            localStorage.setItem('user', JSON.stringify({
+                uid: user.uid,
+                email: user.email
+            }));
+        }
     });
 
     // Load saved theme
