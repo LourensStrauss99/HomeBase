@@ -28,12 +28,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('theme') || 'theme-light';
         document.body.className = savedTheme; // Replace all classes with saved theme
 
-        // Theme toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                document.body.classList.toggle('light-theme');
-                document.body.classList.toggle('dark-theme');
+        // Theme selector
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect) {
+            // Set current theme in dropdown
+            themeSelect.value = savedTheme;
+            
+            // Listen for theme changes
+            themeSelect.addEventListener('change', (e) => {
+                const newTheme = e.target.value;
+                
+                // Remove all theme classes
+                document.body.className = '';
+                
+                // Add new theme class
+                document.body.classList.add(newTheme);
+                
+                // Save theme preference
+                localStorage.setItem('theme', newTheme);
             });
         }
 
@@ -44,19 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.backgroundSize = 'cover';
         document.body.style.backgroundPosition = 'center';
     }
-
-    // Theme selection
-    document.getElementById('light-theme-btn').addEventListener('click', () => {
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-        localStorage.setItem('theme', 'light-theme');
-    });
-
-    document.getElementById('dark-theme-btn').addEventListener('click', () => {
-        document.body.classList.remove('light-theme');
-        document.body.classList.add('dark-theme');
-        localStorage.setItem('theme', 'dark-theme');
-    });
 
     // Background image
     document.getElementById('bg-image').addEventListener('change', (e) => {

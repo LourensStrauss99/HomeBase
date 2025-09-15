@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeSelect = document.getElementById('theme-select');
     
     // Initialize theme from localStorage or default
-    const savedTheme = localStorage.getItem('selectedTheme') || 'theme-light';
+    const savedTheme = localStorage.getItem('theme') || 'theme-light';
     document.body.className = savedTheme;
     themeSelect.value = savedTheme;
     
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
     themeSelect.addEventListener('change', function() {
         const selectedTheme = this.value;
         document.body.className = selectedTheme;
-        localStorage.setItem('selectedTheme', selectedTheme);
+        localStorage.setItem('theme', selectedTheme);
     });
     
     // Check if user is already authenticated

@@ -5,24 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomeBase Customize</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/assets/icons/AppImages/ios/180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HomeBase">
+    
+    <!-- Standard Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/AppImages/ios/32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/AppImages/ios/16.png">
+    
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#2a5298">
 </head>
-<body class="light-theme">
+<body class="theme-light">
     <div class="container">
         <h1>Customize HomeBase</h1>
         <nav>
             <a href="index.html">Public Page</a> |
             <a href="admin.html">Admin</a> |
             <a href="analytics.html">Analytics</a> |
-            <a href="activity.html">Activity</a>
+            <a href="activity.html">Activity</a> |
+            <a href="settings.html">Settings</a>
         </nav>
-        <h2>Theme Selection</h2>
-        <button id="light-theme-btn">Light Theme</button>
-        <button id="dark-theme-btn">Dark Theme</button>
+        <!-- Theme Selector -->
+        <div class="theme-selector">
+            <label for="theme-select">🎨 Choose Theme:</label>
+            <select id="theme-select">
+                <option value="theme-default">Deep Blue</option>
+                <option value="theme-purple">Purple</option>
+                <option value="theme-green">Green</option>
+                <option value="theme-orange">Orange</option>
+                <option value="theme-dark">Dark Mode</option>
+                <option value="theme-light">Light Mode</option>
+                <option value="theme-sunset">Sunset</option>
+                <option value="theme-ocean">Ocean</option>
+                <option value="theme-cosmic">Cosmic</option>
+            </select>
+        </div>
         <h2>Background</h2>
         <input type="file" id="bg-image" accept="image/*">
         <button id="remove-bg">Remove Background</button>
-        <button id="theme-toggle">Toggle Theme</button>
     </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+    
     <script src="customize.js"></script>
 </body>
 </html>

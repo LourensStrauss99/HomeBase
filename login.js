@@ -28,6 +28,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Password visibility toggle
+    const passwordToggle = document.querySelector('.password-toggle');
+    const passwordInput = document.getElementById('password');
+    
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', () => {
+            const isPassword = passwordInput.type === 'password';
+            
+            // Toggle input type
+            passwordInput.type = isPassword ? 'text' : 'password';
+            
+            // Toggle button class for styling
+            passwordToggle.classList.toggle('visible', isPassword);
+            
+            // Update aria-label for accessibility
+            passwordToggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+        });
+    }
+
     // Login form
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
