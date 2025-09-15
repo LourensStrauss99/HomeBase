@@ -24,12 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function initializeActivity(currentUser) {
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.body.classList.add(savedTheme);
-    }
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'theme-default';
+        document.body.className = savedTheme; // Replace all classes with saved theme
 
     // Load saved background
     const savedBg = localStorage.getItem('background');

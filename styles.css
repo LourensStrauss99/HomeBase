@@ -237,6 +237,14 @@ body.dark-theme {
     transition: all 0.3s ease;
 }
 
+.link-icon-emoji {
+    font-size: 24px;
+    margin-right: 12px;
+    display: inline-block;
+    vertical-align: middle;
+    transition: all 0.3s ease;
+}
+
 .link-text {
     display: inline-block;
     vertical-align: middle;
@@ -275,6 +283,12 @@ body.dark-theme {
     margin-right: 10px;
     display: inline-block;
     filter: brightness(0) invert(1); /* Makes SVG icons white */
+}
+
+.admin-link-icon-emoji {
+    font-size: 20px;
+    margin-right: 10px;
+    display: inline-block;
 }
 
 .admin-link-details {

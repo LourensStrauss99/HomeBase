@@ -24,19 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function initializeCustomize(currentUser) {
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'theme-default';
+        document.body.className = savedTheme; // Replace all classes with saved theme
 
-    // Theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('light-theme');
-        document.body.classList.toggle('dark-theme');
-    });
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.body.classList.add(savedTheme);
-    }
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('light-theme');
+                document.body.classList.toggle('dark-theme');
+            });
+        }
 
     // Load saved background
     const savedBg = localStorage.getItem('background');

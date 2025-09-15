@@ -62,47 +62,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const domain = url.toLowerCase();
         
         if (domain.includes('instagram.com') || domain.includes('ig.me')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg';
+            return '📷'; // Instagram emoji
         } else if (domain.includes('twitter.com') || domain.includes('x.com') || domain.includes('t.co')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/x.svg';
+            return '❌'; // X emoji
         } else if (domain.includes('youtube.com') || domain.includes('youtu.be')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/youtube.svg';
+            return '📺'; // YouTube emoji
         } else if (domain.includes('github.com') || domain.includes('git.io')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/github.svg';
+            return '💻'; // GitHub emoji
         } else if (domain.includes('linkedin.com') || domain.includes('lnkd.in')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/linkedin.svg';
+            return '💼'; // LinkedIn emoji
         } else if (domain.includes('tiktok.com') || domain.includes('vm.tiktok.com')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/tiktok.svg';
+            return '🎵'; // TikTok emoji
         } else if (domain.includes('facebook.com') || domain.includes('fb.me')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg';
+            return '👥'; // Facebook emoji
         } else if (domain.includes('snapchat.com') || domain.includes('snap.com')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/snapchat.svg';
+            return '👻'; // Snapchat emoji
         } else if (domain.includes('discord.gg') || domain.includes('discord.com')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/discord.svg';
+            return '🎮'; // Discord emoji
         } else if (domain.includes('twitch.tv')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/twitch.svg';
+            return '🎮'; // Twitch emoji
         } else if (domain.includes('spotify.com') || domain.includes('spoti.fi')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/spotify.svg';
+            return '🎧'; // Spotify emoji
         } else if (domain.includes('pinterest.com') || domain.includes('pin.it')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/pinterest.svg';
+            return '📌'; // Pinterest emoji
         } else if (domain.includes('reddit.com') || domain.includes('redd.it')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/reddit.svg';
+            return '🔗'; // Reddit emoji
         } else if (domain.includes('telegram.me') || domain.includes('t.me')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/telegram.svg';
+            return '💬'; // Telegram emoji
         } else if (domain.includes('whatsapp.com') || domain.includes('wa.me')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg';
+            return '📱'; // WhatsApp emoji
         } else if (domain.includes('paypal.com') || domain.includes('paypal.me')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/paypal.svg';
+            return '💳'; // PayPal emoji
         } else if (domain.includes('venmo.com')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/venmo.svg';
+            return '💰'; // Venmo emoji
         } else if (domain.includes('cashapp.com') || domain.includes('cash.me')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/cashapp.svg';
+            return '💵'; // Cash App emoji
         } else if (domain.includes('medium.com')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/medium.svg';
+            return '✍️'; // Medium emoji
         } else if (domain.includes('substack.com')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/substack.svg';
+            return '📰'; // Substack emoji
         } else {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/link.svg'; // Generic link
+            return '🔗'; // Generic link emoji
         }
     }
 
@@ -157,6 +157,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Logout functionality
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await FirebaseUtils.signOut();
+                localStorage.removeItem('user');
+                localStorage.removeItem('links');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Error logging out. Please try again.');
+            }
+        });
+    }
+
     // Default links
     const defaultLinks = [
         { name: 'Instagram', url: '#', count: 0 },
@@ -183,9 +199,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // Get icon for the link
             const iconSrc = link.icon || detectSocialIcon(link.url);
             
+            // Check if icon is emoji or image URL
+            const isEmoji = iconSrc.length <= 4 && !iconSrc.includes('http');
+            
             linkDiv.innerHTML = `
                 <span class="admin-link-info">
-                    <img src="${iconSrc}" alt="${link.name}" class="admin-link-icon">
+                    ${isEmoji ? 
+                        `<span class="admin-link-icon-emoji">${iconSrc}</span>` : 
+                        `<img src="${iconSrc}" alt="${link.name}" class="admin-link-icon">`
+                    }
                     <span class="admin-link-details">${link.name}: ${link.url} (Clicks: ${link.count})</span>
                 </span>
                 <button class="edit-btn" data-index="${index}">Edit</button>
