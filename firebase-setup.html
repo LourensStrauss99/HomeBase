@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Setup - HomeBase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-theme">
+    <div class="container">
+        <h1>🔥 Firebase Integration Guide</h1>
+        
+        <h2>Why Firebase?</h2>
+        <ul>
+            <li>✅ Free tier supports thousands of users</li>
+            <li>✅ Real user authentication</li>
+            <li>✅ Cloud database for user data</li>
+            <li>✅ Works with GitHub Pages</li>
+            <li>✅ Google's reliable infrastructure</li>
+        </ul>
+
+        <h2>Quick Setup Steps:</h2>
+        <ol>
+            <li><strong>Go to:</strong> <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
+            <li><strong>Create Project:</strong> "HomeBase-App"</li>
+            <li><strong>Enable Authentication:</strong> Email/Password method</li>
+            <li><strong>Enable Firestore Database:</strong> For storing user links</li>
+            <li><strong>Get Config:</strong> Copy Firebase config object</li>
+            <li><strong>Add to HTML:</strong> Include Firebase SDK scripts</li>
+        </ol>
+
+        <h2>Benefits:</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>🔐 Real Authentication</h3>
+                <p>Users create accounts with email/password</p>
+            </div>
+            <div class="feature">
+                <h3>☁️ Cloud Storage</h3>
+                <p>Each user's links saved in cloud database</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Real Analytics</h3>
+                <p>Track clicks across all devices</p>
+            </div>
+            <div class="feature">
+                <h3>🌍 Global Access</h3>
+                <p>Login from anywhere, see your links</p>
+            </div>
+        </div>
+
+        <button onclick="window.open('https://console.firebase.google.com', '_blank')" class="cta-button">
+            🚀 Set Up Firebase Now
+        </button>
+
+        <h2>Alternative Options:</h2>
+        <ul>
+            <li><strong>Supabase:</strong> Similar to Firebase, also free tier</li>
+            <li><strong>Netlify Functions:</strong> Serverless backend</li>
+            <li><strong>Vercel + PlanetScale:</strong> Modern stack</li>
+        </ul>
+    </div>
+
+    <style>
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</body>
+</html>
