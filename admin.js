@@ -57,53 +57,72 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Social media icon detection function
+    // Social media icon detection function using Simple Icons
     function detectSocialIcon(url) {
         const domain = url.toLowerCase();
         
+        // Return the Simple Icons slug name for each platform
         if (domain.includes('instagram.com') || domain.includes('ig.me')) {
-            return '📷'; // Instagram emoji
+            return 'instagram';
         } else if (domain.includes('twitter.com') || domain.includes('x.com') || domain.includes('t.co')) {
-            return '❌'; // X emoji
+            return 'x';
         } else if (domain.includes('youtube.com') || domain.includes('youtu.be')) {
-            return '📺'; // YouTube emoji
+            return 'youtube';
         } else if (domain.includes('github.com') || domain.includes('git.io')) {
-            return '💻'; // GitHub emoji
+            return 'github';
         } else if (domain.includes('linkedin.com') || domain.includes('lnkd.in')) {
-            return '💼'; // LinkedIn emoji
+            return 'linkedin';
         } else if (domain.includes('tiktok.com') || domain.includes('vm.tiktok.com')) {
-            return '🎵'; // TikTok emoji
+            return 'tiktok';
         } else if (domain.includes('facebook.com') || domain.includes('fb.me')) {
-            return '👥'; // Facebook emoji
+            return 'facebook';
         } else if (domain.includes('snapchat.com') || domain.includes('snap.com')) {
-            return '👻'; // Snapchat emoji
+            return 'snapchat';
         } else if (domain.includes('discord.gg') || domain.includes('discord.com')) {
-            return '🎮'; // Discord emoji
+            return 'discord';
         } else if (domain.includes('twitch.tv')) {
-            return '🎮'; // Twitch emoji
+            return 'twitch';
         } else if (domain.includes('spotify.com') || domain.includes('spoti.fi')) {
-            return '🎧'; // Spotify emoji
+            return 'spotify';
         } else if (domain.includes('pinterest.com') || domain.includes('pin.it')) {
-            return '📌'; // Pinterest emoji
+            return 'pinterest';
         } else if (domain.includes('reddit.com') || domain.includes('redd.it')) {
-            return '🔗'; // Reddit emoji
+            return 'reddit';
         } else if (domain.includes('telegram.me') || domain.includes('t.me')) {
-            return '💬'; // Telegram emoji
+            return 'telegram';
         } else if (domain.includes('whatsapp.com') || domain.includes('wa.me')) {
-            return '📱'; // WhatsApp emoji
+            return 'whatsapp';
         } else if (domain.includes('paypal.com') || domain.includes('paypal.me')) {
-            return '💳'; // PayPal emoji
+            return 'paypal';
         } else if (domain.includes('venmo.com')) {
-            return '💰'; // Venmo emoji
+            return 'venmo';
         } else if (domain.includes('cashapp.com') || domain.includes('cash.me')) {
-            return '💵'; // Cash App emoji
+            return 'cashapp';
         } else if (domain.includes('medium.com')) {
-            return '✍️'; // Medium emoji
+            return 'medium';
         } else if (domain.includes('substack.com')) {
-            return '📰'; // Substack emoji
+            return 'substack';
         } else {
-            return '🔗'; // Generic link emoji
+            return 'globe'; // Generic link icon
         }
+    }
+
+    // Function to render SVG icon from Simple Icons
+    function renderIcon(iconSlug) {
+        // Check if Simple Icons is loaded and has the icon
+        if (window.simpleIcons && window.simpleIcons[iconSlug]) {
+            const icon = window.simpleIcons[iconSlug];
+            return `<svg class="admin-link-icon-svg" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                        <title>${icon.title}</title>
+                        <path d="${icon.path}"></path>
+                    </svg>`;
+        }
+        // Fallback to a generic icon
+        return `<svg class="admin-link-icon-svg" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <title>Link</title>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2"/>
+                </svg>`;
     }
 
     let isRedirecting = false;
@@ -133,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'theme-default';
+    const savedTheme = localStorage.getItem('theme') || 'theme-light';
     document.body.className = savedTheme; // Replace all classes with saved theme
 
     // Theme selector
@@ -173,13 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Default links
-    const defaultLinks = [
-        { name: 'Instagram', url: '#', count: 0 },
-        { name: 'X', url: '#', count: 0 },
-        { name: 'YouTube', url: '#', count: 0 },
-        { name: 'GitHub', url: '#', count: 0 }
-    ];
+    // Default links - empty array for new users
+    const defaultLinks = [];
 
     // Load subscription info
     const subscription = JSON.parse(localStorage.getItem('subscription')) || { plan: 'free', status: 'active' };
@@ -197,17 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
             linkDiv.className = 'admin-link-item';
             
             // Get icon for the link
-            const iconSrc = link.icon || detectSocialIcon(link.url);
-            
-            // Check if icon is emoji or image URL
-            const isEmoji = iconSrc.length <= 4 && !iconSrc.includes('http');
+            const iconSlug = link.icon || detectSocialIcon(link.url);
+            const iconHtml = renderIcon(iconSlug);
             
             linkDiv.innerHTML = `
                 <span class="admin-link-info">
-                    ${isEmoji ? 
-                        `<span class="admin-link-icon-emoji">${iconSrc}</span>` : 
-                        `<img src="${iconSrc}" alt="${link.name}" class="admin-link-icon">`
-                    }
+                    ${iconHtml}
                     <span class="admin-link-details">${link.name}: ${link.url} (Clicks: ${link.count})</span>
                 </span>
                 <button class="edit-btn" data-index="${index}">Edit</button>
@@ -266,9 +275,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (url) {
             // Auto-detect name and icon for the URL
             const name = detectPlatformName(url);
-            const iconSrc = detectSocialIcon(url);
+            const iconSlug = detectSocialIcon(url);
             
-            links.push({ name, url, count: 0, icon: iconSrc });
+            links.push({ name, url, count: 0, icon: iconSlug });
             localStorage.setItem('links', JSON.stringify(links));
             renderLinks();
             linkUrlInput.value = '';

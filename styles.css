@@ -88,11 +88,16 @@ body.theme-cosmic {
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 8px;
     padding: 10px 15px;
-    color: inherit;
+    color: #333; /* Always black text for readability */
     font-size: 16px;
     min-width: 180px;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.theme-selector select option {
+    color: #333; /* Ensure dropdown options are also black */
+    background: white;
 }
 
 .theme-selector select:hover {
@@ -233,8 +238,8 @@ body.dark-theme {
     margin-right: 12px;
     display: inline-block;
     vertical-align: middle;
-    filter: brightness(0) invert(1); /* Makes SVG icons white */
     transition: all 0.3s ease;
+    color: currentColor;
 }
 
 .link-icon-emoji {
@@ -282,7 +287,15 @@ body.dark-theme {
     height: 20px;
     margin-right: 10px;
     display: inline-block;
-    filter: brightness(0) invert(1); /* Makes SVG icons white */
+    color: currentColor;
+}
+
+.admin-link-icon-svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    display: inline-block;
+    color: currentColor;
 }
 
 .admin-link-icon-emoji {

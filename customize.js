@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeCustomize(currentUser) {
         // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'theme-default';
+        const savedTheme = localStorage.getItem('theme') || 'theme-light';
         document.body.className = savedTheme; // Replace all classes with saved theme
 
         // Theme toggle

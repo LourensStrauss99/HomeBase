@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const themeSelect = document.getElementById('theme-select');
     
     // Initialize theme from localStorage or default
-    const savedTheme = localStorage.getItem('selectedTheme') || 'theme-default';
+    const savedTheme = localStorage.getItem('selectedTheme') || 'theme-light';
     document.body.className = savedTheme;
     themeSelect.value = savedTheme;
     
