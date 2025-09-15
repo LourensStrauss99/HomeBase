@@ -1,7 +1,7 @@
 body.custom-bg {
-    background-image: var(--bg-image);
-    background-size: cover;
-    background-position: center;
+    background: var(--bg-image) !important;
+    background-size: cover !important;
+    background-position: center !important;
 }
 
 .container {
@@ -95,4 +95,131 @@ body.dark-theme {
     background: rgba(255, 255, 255, 0.2);
     padding: 2px 5px;
     border-radius: 10px;
+}
+
+/* Admin styles */
+.admin-link-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-link-item span {
+    flex-grow: 1;
+}
+
+.admin-link-item button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    font-size: 0.8em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        max-width: 100%;
+        width: 95%;
+        padding: 30px 20px;
+        border-radius: 10px;
+    }
+    
+    h1 {
+        font-size: 2em;
+        margin-bottom: 15px;
+    }
+    
+    p {
+        font-size: 1em;
+        margin-bottom: 25px;
+    }
+    
+    .links {
+        gap: 12px;
+    }
+    
+    .link {
+        padding: 12px 18px;
+        font-size: 1.1em;
+    }
+    
+    #theme-toggle {
+        padding: 8px 16px;
+        font-size: 0.9em;
+        margin-bottom: 15px;
+    }
+    
+    .count {
+        font-size: 0.7em;
+        padding: 1px 4px;
+    }
+    
+    /* Admin page responsive */
+    #add-link-section {
+        margin: 15px 0;
+    }
+    
+    #add-link-section input {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 8px;
+        font-size: 0.9em;
+    }
+    
+    #add-link-section button {
+        width: 100%;
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .admin-link-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .admin-link-item button {
+        padding: 5px 10px;
+        font-size: 0.8em;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 25px 15px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    .link {
+        padding: 10px 15px;
+        font-size: 1em;
+    }
+    
+    #theme-toggle {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+    
+    #add-link-section input {
+        font-size: 0.8em;
+    }
+    
+    #add-link-section button {
+        font-size: 0.8em;
+    }
 }
