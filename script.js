@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (domain.includes('instagram.com') || domain.includes('ig.me')) {
             return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg';
         } else if (domain.includes('twitter.com') || domain.includes('x.com') || domain.includes('t.co')) {
-            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/twitter.svg';
+            return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/x.svg';
         } else if (domain.includes('youtube.com') || domain.includes('youtu.be')) {
             return 'https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/youtube.svg';
         } else if (domain.includes('github.com') || domain.includes('git.io')) {
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Default links
     const defaultLinks = [
         { name: 'Instagram', url: '#', count: 0 },
-        { name: 'Twitter', url: '#', count: 0 },
+        { name: 'X', url: '#', count: 0 },
         { name: 'YouTube', url: '#', count: 0 },
         { name: 'GitHub', url: '#', count: 0 }
     ];

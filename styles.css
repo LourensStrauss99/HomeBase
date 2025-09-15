@@ -588,16 +588,6 @@ a:hover {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    body::before {
-        filter: blur(30px);
-        animation: flowingWaves 12s ease-in-out infinite;
-    }
-    
-    body::after {
-        filter: blur(45px);
-        animation: flowingWaves 16s ease-in-out infinite reverse;
-    }
-    
     body {
         padding: 15px;
     }
@@ -739,16 +729,6 @@ a:hover {
 }
 
 @media (max-width: 480px) {
-    body::before {
-        filter: blur(25px);
-        animation: flowingWaves 10s ease-in-out infinite;
-    }
-    
-    body::after {
-        filter: blur(35px);
-        animation: flowingWaves 14s ease-in-out infinite reverse;
-    }
-    
     body {
         padding: 10px;
     }
