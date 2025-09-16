@@ -140,8 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Default links - empty array for new users
-    const defaultLinks = [];
+    // Default links - these will show on first visit
+    const defaultLinks = [
+        { name: "YouTube", url: "https://youtube.com/@yourname", count: 2 },
+        { name: "TikTok", url: "https://tiktok.com/@yourname", count: 2 },
+        { name: "Facebook", url: "https://facebook.com/yourname", count: 0 },
+        { name: "Instagram", url: "https://instagram.com/yourname", count: 0 }
+    ];
 
     // Load links from localStorage or use defaults
     let links = JSON.parse(localStorage.getItem('links')) || defaultLinks;
