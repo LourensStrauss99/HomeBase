@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="styles.css">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="manifest.json">
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/assets/icons/AppImages/ios/180.png">
+    <link rel="apple-touch-icon" href="assets/icons/AppImages/ios/180.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#2a5298">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/AppImages/ios/32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/AppImages/ios/32.png">
 </head>
 <body class="theme-light">
     <div class="container">
@@ -48,6 +48,14 @@
             <div id="click-distribution"></div>
         </div>
     </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
     <script src="activity.js"></script>
     <script src="script.js"></script>
 </body>

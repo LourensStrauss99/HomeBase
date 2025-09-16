@@ -150,6 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to render links
     function renderLinks() {
         const linksContainer = document.querySelector('.links');
+        if (!linksContainer) {
+            return; // Exit if links container doesn't exist on this page
+        }
         linksContainer.innerHTML = '';
         links.forEach(link => {
             const linkElement = document.createElement('a');
