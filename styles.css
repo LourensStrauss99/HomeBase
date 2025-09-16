@@ -234,6 +234,224 @@ p {
     box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
 }
 
+/* Platform-specific link colors */
+.link[href*="youtube.com"],
+.link[href*="youtu.be"] {
+    background: #ff0000;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+}
+
+.link[href*="youtube.com"]:hover,
+.link[href*="youtu.be"]:hover {
+    background: #cc0000;
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+}
+
+.link[href*="tiktok.com"] {
+    background: #000000;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.link[href*="tiktok.com"]:hover {
+    background: #333333;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.link[href*="instagram.com"],
+.link[href*="ig.me"] {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(240, 148, 51, 0.3);
+}
+
+.link[href*="instagram.com"]:hover,
+.link[href*="ig.me"]:hover {
+    background: linear-gradient(45deg, #e08323 0%, #d5582c 25%, #cb1733 50%, #bb1356 75%, #ab0778 100%);
+    box-shadow: 0 6px 20px rgba(240, 148, 51, 0.4);
+}
+
+.link[href*="facebook.com"],
+.link[href*="fb.me"] {
+    background: #1877f2;
+    color: white;
+    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+}
+
+.link[href*="facebook.com"]:hover,
+.link[href*="fb.me"]:hover {
+    background: #166fe5;
+    box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+}
+
+.link[href*="twitter.com"],
+.link[href*="x.com"],
+.link[href*="t.co"] {
+    background: #000000;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.link[href*="twitter.com"]:hover,
+.link[href*="x.com"]:hover,
+.link[href*="t.co"]:hover {
+    background: #333333;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.link[href*="linkedin.com"],
+.link[href*="lnkd.in"] {
+    background: #0a66c2;
+    color: white;
+    box-shadow: 0 4px 15px rgba(10, 102, 194, 0.3);
+}
+
+.link[href*="linkedin.com"]:hover,
+.link[href*="lnkd.in"]:hover {
+    background: #0958a5;
+    box-shadow: 0 6px 20px rgba(10, 102, 194, 0.4);
+}
+
+.link[href*="github.com"],
+.link[href*="git.io"] {
+    background: #24292e;
+    color: white;
+    box-shadow: 0 4px 15px rgba(36, 41, 46, 0.3);
+}
+
+.link[href*="github.com"]:hover,
+.link[href*="git.io"]:hover {
+    background: #1b1f23;
+    box-shadow: 0 6px 20px rgba(36, 41, 46, 0.4);
+}
+
+.link[href*="snapchat.com"],
+.link[href*="snap.com"] {
+    background: #fffc00;
+    color: #000000;
+    box-shadow: 0 4px 15px rgba(255, 252, 0, 0.3);
+}
+
+.link[href*="snapchat.com"]:hover,
+.link[href*="snap.com"]:hover {
+    background: #e6e300;
+    box-shadow: 0 6px 20px rgba(255, 252, 0, 0.4);
+}
+
+.link[href*="discord.gg"],
+.link[href*="discord.com"] {
+    background: #5865f2;
+    color: white;
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+}
+
+.link[href*="discord.gg"]:hover,
+.link[href*="discord.com"]:hover {
+    background: #4752c4;
+    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.4);
+}
+
+.link[href*="twitch.tv"] {
+    background: #9146ff;
+    color: white;
+    box-shadow: 0 4px 15px rgba(145, 70, 255, 0.3);
+}
+
+.link[href*="twitch.tv"]:hover {
+    background: #7c3aed;
+    box-shadow: 0 6px 20px rgba(145, 70, 255, 0.4);
+}
+
+.link[href*="spotify.com"],
+.link[href*="spoti.fi"] {
+    background: #1db954;
+    color: white;
+    box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+}
+
+.link[href*="spotify.com"]:hover,
+.link[href*="spoti.fi"]:hover {
+    background: #1aa34a;
+    box-shadow: 0 6px 20px rgba(29, 185, 84, 0.4);
+}
+
+.link[href*="pinterest.com"],
+.link[href*="pin.it"] {
+    background: #e60023;
+    color: white;
+    box-shadow: 0 4px 15px rgba(230, 0, 35, 0.3);
+}
+
+.link[href*="pinterest.com"]:hover,
+.link[href*="pin.it"]:hover {
+    background: #bd081c;
+    box-shadow: 0 6px 20px rgba(230, 0, 35, 0.4);
+}
+
+.link[href*="reddit.com"],
+.link[href*="redd.it"] {
+    background: #ff4500;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+}
+
+.link[href*="reddit.com"]:hover,
+.link[href*="redd.it"]:hover {
+    background: #e53e00;
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+}
+
+.link[href*="telegram.me"],
+.link[href*="t.me"] {
+    background: #0088cc;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 136, 204, 0.3);
+}
+
+.link[href*="telegram.me"]:hover,
+.link[href*="t.me"]:hover {
+    background: #0077b5;
+    box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
+}
+
+.link[href*="whatsapp.com"],
+.link[href*="wa.me"] {
+    background: #25d366;
+    color: white;
+    box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.link[href*="whatsapp.com"]:hover,
+.link[href*="wa.me"]:hover {
+    background: #20c157;
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.link[href*="paypal.com"],
+.link[href*="paypal.me"] {
+    background: #003087;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 48, 135, 0.3);
+}
+
+.link[href*="paypal.com"]:hover,
+.link[href*="paypal.me"]:hover {
+    background: #002474;
+    box-shadow: 0 6px 20px rgba(0, 48, 135, 0.4);
+}
+
+.link[href*="medium.com"] {
+    background: #000000;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.link[href*="medium.com"]:hover {
+    background: #333333;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
 body.light-theme {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #333;
