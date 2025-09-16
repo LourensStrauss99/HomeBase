@@ -345,9 +345,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyLinkBtn = document.getElementById('copy-link-btn');
     
     if (homebaseUrlInput && copyLinkBtn) {
-        // Generate the HomeBase URL
-        const currentUrl = window.location.origin;
-        const homebaseUrl = `${currentUrl}/profile.html`;
+        // Smart URL generation for different deployment environments
+        function generateHomeBaseUrl() {
+            const currentUrl = window.location.origin;
+            const currentPath = window.location.pathname;
+            
+            // Check if we're on GitHub Pages
+            if (currentUrl.includes('github.io')) {
+                // GitHub Pages deployment
+                if (currentPath.includes('/HomeBase/')) {
+                    // We're in the repository subdirectory
+                    return `${currentUrl}/HomeBase/profile.html`;
+                } else {
+                    // We're at the root (custom domain or root deployment)
+                    return `${currentUrl}/profile.html`;
+                }
+            }
+            
+            // Localhost or custom domain
+            if (currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
+                // Local development
+                return `${currentUrl}/profile.html`;
+            }
+            
+            // Custom domain deployment
+            return `${currentUrl}/profile.html`;
+        }
+        
+        const homebaseUrl = generateHomeBaseUrl();
         homebaseUrlInput.value = homebaseUrl;
         
         // Copy to clipboard functionality
