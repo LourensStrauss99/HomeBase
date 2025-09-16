@@ -339,4 +339,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial render
     renderLinks();
+    
+    // HomeBase Link functionality
+    const homebaseUrlInput = document.getElementById('homebase-url');
+    const copyLinkBtn = document.getElementById('copy-link-btn');
+    
+    if (homebaseUrlInput && copyLinkBtn) {
+        // Generate the HomeBase URL
+        const currentUrl = window.location.origin;
+        const homebaseUrl = `${currentUrl}/profile.html`;
+        homebaseUrlInput.value = homebaseUrl;
+        
+        // Copy to clipboard functionality
+        copyLinkBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(homebaseUrl);
+                copyLinkBtn.textContent = '✅ Copied!';
+                copyLinkBtn.classList.add('copied');
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    copyLinkBtn.textContent = '📋 Copy';
+                    copyLinkBtn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                // Fallback for older browsers
+                homebaseUrlInput.select();
+                document.execCommand('copy');
+                copyLinkBtn.textContent = '✅ Copied!';
+                copyLinkBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyLinkBtn.textContent = '📋 Copy';
+                    copyLinkBtn.classList.remove('copied');
+                }, 2000);
+            }
+        });
+    }
 });

@@ -140,6 +140,47 @@ body.custom-bg::after {
     display: none !important;
 }
 
+/* Navigation Styles */
+nav {
+    text-align: center;
+    margin: 20px 0 30px 0;
+}
+
+nav a {
+    color: #000000 !important; /* Always black text for visibility */
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    margin: 0 8px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+nav a:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure nav links are visible on all themes */
+body.theme-light nav a,
+body.theme-orange nav a,
+body.theme-ocean nav a {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #000000 !important;
+}
+
+body.theme-light nav a:hover,
+body.theme-orange nav a:hover,
+body.theme-ocean nav a:hover {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
 .container {
     background: rgba(255, 255, 255, 0.08); /* Very subtle transparency */
     backdrop-filter: blur(20px) saturate(1.8); /* Strong blur for glass effect */
@@ -1074,4 +1115,103 @@ a:hover {
         width: 100%;
         max-width: 250px;
     }
+}
+
+/* HomeBase Link Section */
+.homebase-link-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.homebase-link-section h2 {
+    margin-top: 0;
+    color: #fff;
+    font-size: 1.4em;
+    text-align: center;
+}
+
+.link-display {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    align-items: center;
+}
+
+.link-display input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.link-display input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.copy-btn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(40, 167, 69, 0.3);
+}
+
+.copy-btn:hover {
+    background: linear-gradient(135deg, #218838, #1aa085);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.copy-btn:active {
+    transform: translateY(0);
+}
+
+.copy-btn.copied {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.link-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    text-align: center;
+    margin: 10px 0 0 0;
+    line-height: 1.4;
+}
+
+/* Dark theme adjustments for HomeBase link section */
+body.theme-dark .homebase-link-section {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.theme-dark .homebase-link-section h2 {
+    color: #fff;
+}
+
+body.theme-dark .link-description {
+    color: rgba(255, 255, 255, 0.7);
 }
