@@ -1433,3 +1433,296 @@ body.theme-dark .homebase-link-section h2 {
 body.theme-dark .link-description {
     color: rgba(255, 255, 255, 0.7);
 }
+
+/* HomeBase Link Section Styles */
+.homebase-link-section {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px 0 30px 0;
+    text-align: center;
+}
+
+.homebase-link-section h2 {
+    margin: 0 0 15px 0;
+    font-size: 1.3em;
+    color: inherit;
+    font-weight: 600;
+}
+
+.link-display {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.link-display input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 0.9em;
+    font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.link-display input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* Enhanced Mobile Responsiveness */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .container {
+        max-width: 100%;
+        width: 95%;
+        padding: 20px 15px;
+        border-radius: 15px;
+        backdrop-filter: blur(15px) saturate(1.6);
+        box-shadow: 
+            0 15px 30px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+    
+    p {
+        font-size: 1em;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+    
+    /* Navigation mobile improvements */
+    nav {
+        margin: 15px 0 25px 0;
+        text-align: center;
+    }
+    
+    nav a {
+        display: inline-block;
+        margin: 3px 4px;
+        padding: 10px 12px;
+        font-size: 0.9em;
+        font-weight: 500;
+        border-radius: 8px;
+        min-height: 44px; /* iOS touch target */
+        box-sizing: border-box;
+    }
+    
+    /* Theme selector mobile */
+    .theme-selector {
+        margin: 20px 0;
+    }
+    
+    .theme-selector select {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 12px 15px;
+        min-height: 44px;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    /* HomeBase link section mobile */
+    .homebase-link-section {
+        padding: 15px;
+        margin: 15px 0 25px 0;
+        border-radius: 12px;
+    }
+    
+    .homebase-link-section h2 {
+        font-size: 1.2em;
+        margin-bottom: 12px;
+    }
+    
+    .link-display {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    
+    .link-display input {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 10px;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+    
+    .copy-btn {
+        padding: 14px 20px;
+        font-size: 16px;
+        border-radius: 10px;
+        min-height: 44px;
+        font-weight: 600;
+    }
+    
+    /* Form mobile improvements */
+    form {
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    input[type="text"], 
+    input[type="email"], 
+    input[type="password"], 
+    input[type="url"] {
+        padding: 14px 16px;
+        font-size: 16px; /* Prevent zoom on iOS */
+        border-radius: 10px;
+        min-height: 44px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+    
+    button[type="submit"], 
+    .btn-primary {
+        padding: 14px 24px;
+        font-size: 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        min-height: 44px;
+        width: 100%;
+    }
+    
+    /* Admin section mobile */
+    #add-link-section {
+        margin: 20px 0;
+    }
+    
+    #add-link-section input {
+        width: 100%;
+        margin-bottom: 12px;
+        padding: 14px 16px;
+        font-size: 16px;
+        border-radius: 10px;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+    
+    #add-link-section button {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        border-radius: 10px;
+        font-weight: 600;
+        min-height: 44px;
+    }
+    
+    .admin-link-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .admin-link-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        text-align: left;
+    }
+    
+    .admin-link-details {
+        word-break: break-word;
+        font-size: 0.9em;
+        line-height: 1.4;
+    }
+    
+    .admin-link-item button {
+        padding: 10px 16px;
+        font-size: 14px;
+        border-radius: 8px;
+        font-weight: 500;
+        min-height: 40px;
+        margin: 0;
+    }
+    
+    .admin-link-item .edit-btn,
+    .admin-link-item .delete-btn {
+        flex: 1;
+    }
+    
+    /* Subscription status mobile */
+    .subscription-status {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+        text-align: center;
+    }
+    
+    .status-badge {
+        align-self: center;
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 8px;
+    }
+    
+    .container {
+        padding: 15px 12px;
+        border-radius: 12px;
+        width: 98%;
+    }
+    
+    h1 {
+        font-size: 1.6em;
+        margin-bottom: 12px;
+    }
+    
+    nav a {
+        margin: 2px 3px;
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+    
+    .homebase-link-section {
+        padding: 12px;
+        margin: 12px 0 20px 0;
+    }
+    
+    .homebase-link-section h2 {
+        font-size: 1.1em;
+    }
+    
+    .link-display input {
+        font-size: 14px;
+        padding: 12px 14px;
+    }
+    
+    .copy-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .admin-link-item {
+        padding: 12px;
+    }
+    
+    .admin-link-details {
+        font-size: 0.85em;
+    }
+}
