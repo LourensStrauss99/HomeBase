@@ -186,10 +186,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
                 
-                await FirebaseUtils.saveUserData(result.user.uid, userData);
+                console.log('Saving user data to Firestore:', userData);
+                const saveResult = await FirebaseUtils.saveUserData(result.user.uid, userData);
+                
+                if (!saveResult.success) {
+                    throw new Error('Failed to save user data: ' + saveResult.error);
+                }
                 
                 // Also save username mapping for lookups
-                await FirebaseUtils.saveUsernameMapping(username, result.user.uid);
+                console.log('Saving username mapping:', username, '→', result.user.uid);
+                const mappingResult = await FirebaseUtils.saveUsernameMapping(username, result.user.uid);
+                
+                if (!mappingResult.success) {
+                    console.warn('Failed to save username mapping:', mappingResult.error);
+                }
                 
                 alert('Account created successfully! Your HomeBase link is: ' + window.location.origin + '/HomeBase/profile.html?user=' + username);
                 window.location.href = 'admin.html';

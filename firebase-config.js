@@ -61,9 +61,14 @@ window.FirebaseUtils = {
     // Save user data to Firestore
     saveUserData: async (userId, data) => {
         try {
+            console.log('Attempting to save user data for userId:', userId);
+            console.log('Data being saved:', data);
+            
             await db.collection('users').doc(userId).set(data, { merge: true });
+            console.log('User data saved successfully to Firestore');
             return { success: true };
         } catch (error) {
+            console.error('Error saving user data to Firestore:', error);
             return { success: false, error: error.message };
         }
     },

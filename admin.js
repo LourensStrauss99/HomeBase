@@ -534,4 +534,68 @@ document.addEventListener('DOMContentLoaded', () => {
             homebaseUrlInput.value = 'Error loading profile URL';
         });
     }
+
+    // Debug functionality for checking user data
+    const checkUserDataBtn = document.getElementById('check-user-data-btn');
+    const updateUsernameBtn = document.getElementById('update-username-btn');
+    const userDataDisplay = document.getElementById('user-data-display');
+    const userDataJson = document.getElementById('user-data-json');
+
+    if (checkUserDataBtn) {
+        checkUserDataBtn.addEventListener('click', async () => {
+            const user = FirebaseUtils.getCurrentUser();
+            if (user) {
+                try {
+                    const result = await FirebaseUtils.getUserData(user.uid);
+                    if (result.success) {
+                        userDataJson.textContent = JSON.stringify(result.data, null, 2);
+                        userDataDisplay.style.display = 'block';
+                    } else {
+                        userDataJson.textContent = 'Error: ' + result.error;
+                        userDataDisplay.style.display = 'block';
+                    }
+                } catch (error) {
+                    userDataJson.textContent = 'Error: ' + error.message;
+                    userDataDisplay.style.display = 'block';
+                }
+            }
+        });
+    }
+
+    if (updateUsernameBtn) {
+        updateUsernameBtn.addEventListener('click', async () => {
+            const user = FirebaseUtils.getCurrentUser();
+            if (user) {
+                const username = prompt('Enter a username for this account:');
+                if (username) {
+                    try {
+                        // Check if username exists
+                        const exists = await FirebaseUtils.checkUsernameExists(username);
+                        if (exists) {
+                            alert('Username already taken!');
+                            return;
+                        }
+
+                        // Update user data
+                        const updateResult = await FirebaseUtils.saveUserData(user.uid, {
+                            username: username.toLowerCase().trim()
+                        });
+
+                        if (updateResult.success) {
+                            // Save username mapping
+                            await FirebaseUtils.saveUsernameMapping(username.toLowerCase().trim(), user.uid);
+                            alert('Username updated successfully!');
+                            
+                            // Reload profile
+                            loadUserProfile(user.uid);
+                        } else {
+                            alert('Failed to update username: ' + updateResult.error);
+                        }
+                    } catch (error) {
+                        alert('Error updating username: ' + error.message);
+                    }
+                }
+            }
+        });
+    }
 });

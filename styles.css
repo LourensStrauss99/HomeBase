@@ -1920,3 +1920,29 @@ body.theme-light .change-photo-btn {
 body.theme-light .change-photo-btn:hover {
     background: rgba(0, 0, 0, 0.15);
 }
+
+.debug-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 12px;
+    margin: 5px;
+    transition: all 0.3s ease;
+}
+
+.debug-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+body.theme-light .debug-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.theme-light .debug-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
