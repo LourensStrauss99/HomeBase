@@ -140,7 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Check if username is already taken
+            console.log('Checking username availability for:', username);
             const usernameExists = await FirebaseUtils.checkUsernameExists(username);
+            console.log('Username exists check result:', usernameExists);
+            
             if (usernameExists) {
                 alert('Username is already taken! Please choose a different one.');
                 submitBtn.textContent = 'Sign Up';
@@ -148,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
+            console.log('Creating Firebase user account...');
             const result = await FirebaseUtils.signUp(email, password);
             
             if (result.success) {

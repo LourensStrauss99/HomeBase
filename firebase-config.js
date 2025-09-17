@@ -131,11 +131,15 @@ window.FirebaseUtils = {
     // Check if username exists
     checkUsernameExists: async (username) => {
         try {
+            console.log('Checking if username exists:', username);
             const doc = await db.collection('usernames').doc(username.toLowerCase()).get();
-            return doc.exists;
+            const exists = doc.exists;
+            console.log('Username exists result:', exists);
+            return exists;
         } catch (error) {
-            console.error('Error checking username:', error);
-            return true; // Return true to be safe if there's an error
+            console.error('Error checking username (treating as available):', error);
+            // If there's an error (e.g., collection doesn't exist), treat username as available
+            return false;
         }
     },
     

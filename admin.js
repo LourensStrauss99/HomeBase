@@ -538,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Debug functionality for checking user data
     const checkUserDataBtn = document.getElementById('check-user-data-btn');
     const updateUsernameBtn = document.getElementById('update-username-btn');
+    const initDatabaseBtn = document.getElementById('init-database-btn');
     const userDataDisplay = document.getElementById('user-data-display');
     const userDataJson = document.getElementById('user-data-json');
 
@@ -595,6 +596,62 @@ document.addEventListener('DOMContentLoaded', () => {
                         alert('Error updating username: ' + error.message);
                     }
                 }
+            }
+        });
+    }
+
+    if (initDatabaseBtn) {
+        initDatabaseBtn.addEventListener('click', async () => {
+            const user = FirebaseUtils.getCurrentUser();
+            if (user) {
+                try {
+                    initDatabaseBtn.textContent = '🔄 Initializing...';
+                    initDatabaseBtn.disabled = true;
+
+                    // Initialize collections with dummy data to create them
+                    console.log('Initializing Firestore collections...');
+                    
+                    // Create users collection structure (if user doesn't have complete data)
+                    const userData = {
+                        email: user.email,
+                        username: null,
+                        photoURL: null,
+                        photoPath: null,
+                        createdAt: new Date().toISOString(),
+                        subscription: { plan: 'free', status: 'active' },
+                        links: [],
+                        analytics: {
+                            totalViews: 0,
+                            totalClicks: 0,
+                            clickCounts: {}
+                        }
+                    };
+                    
+                    await FirebaseUtils.saveUserData(user.uid, userData);
+                    console.log('User collection initialized');
+                    
+                    // Initialize usernames collection structure (create a dummy entry and remove it)
+                    await db.collection('usernames').doc('_init').set({
+                        userId: 'init',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    await db.collection('usernames').doc('_init').delete();
+                    console.log('Usernames collection initialized');
+                    
+                    alert('Database collections initialized successfully! You can now use the signup form.');
+                    
+                    // Reload user profile
+                    loadUserProfile(user.uid);
+                    
+                } catch (error) {
+                    alert('Error initializing database: ' + error.message);
+                    console.error('Database initialization error:', error);
+                } finally {
+                    initDatabaseBtn.textContent = '🗄️ Initialize Database';
+                    initDatabaseBtn.disabled = false;
+                }
+            } else {
+                alert('Please login first to initialize the database.');
             }
         });
     }
