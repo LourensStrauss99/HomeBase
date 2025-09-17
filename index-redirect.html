@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to HomeBase...</title>
+</head>
+<body>
+    <script>
+        // Check if there's an auth token in the URL and redirect to HomeBase confirm page
+        if (window.location.hash.includes('access_token=')) {
+            // Redirect to HomeBase confirm page with the auth token
+            window.location.href = '/HomeBase/confirm.html' + window.location.hash;
+        } else {
+            // Regular redirect to HomeBase
+            window.location.href = '/HomeBase/';
+        }
+    </script>
+    <p>Redirecting to HomeBase...</p>
+</body>
+</html>

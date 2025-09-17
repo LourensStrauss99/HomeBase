@@ -29,6 +29,34 @@
             const loadingEl = document.getElementById('loading');
 
             try {
+                // Check for auth tokens in URL hash (from email confirmation)
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                
+                if (accessToken) {
+                    console.log('Found access token in URL, setting session...');
+                    statusEl.textContent = 'Processing email confirmation...';
+                    
+                    // Set the session using the access token from URL
+                    const { data: sessionData, error: sessionError } = await supabaseClient.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: hashParams.get('refresh_token')
+                    });
+                    
+                    if (sessionError) {
+                        console.error('Session error:', sessionError);
+                        statusEl.textContent = 'Error setting session: ' + sessionError.message;
+                        loadingEl.style.display = 'none';
+                        return;
+                    }
+                    
+                    console.log('Session set successfully:', sessionData);
+                    statusEl.textContent = 'Email confirmed successfully! Completing your signup...';
+                    
+                    // Clear the URL hash
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+
                 // Handle the auth callback
                 const { data, error } = await supabaseClient.auth.getSession();
                 
