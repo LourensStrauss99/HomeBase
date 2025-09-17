@@ -539,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkUserDataBtn = document.getElementById('check-user-data-btn');
     const updateUsernameBtn = document.getElementById('update-username-btn');
     const initDatabaseBtn = document.getElementById('init-database-btn');
+    const fixUserDataBtn = document.getElementById('fix-user-data-btn');
     const userDataDisplay = document.getElementById('user-data-display');
     const userDataJson = document.getElementById('user-data-json');
 
@@ -652,6 +653,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 alert('Please login first to initialize the database.');
+            }
+        });
+    }
+
+    if (fixUserDataBtn) {
+        fixUserDataBtn.addEventListener('click', async () => {
+            const user = FirebaseUtils.getCurrentUser();
+            if (user) {
+                try {
+                    // Get current user data
+                    const currentResult = await FirebaseUtils.getUserData(user.uid);
+                    if (!currentResult.success) {
+                        alert('Could not load current user data');
+                        return;
+                    }
+
+                    const currentData = currentResult.data;
+                    console.log('Current user data:', currentData);
+
+                    // Check if username is missing
+                    if (!currentData.username || currentData.username === null) {
+                        const username = prompt('Your username is missing. Please enter a username:');
+                        if (username) {
+                            const cleanUsername = username.toLowerCase().trim();
+                            
+                            // Validate username
+                            if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
+                                alert('Username can only contain letters, numbers, and underscores!');
+                                return;
+                            }
+                            
+                            // Check if username exists
+                            const exists = await FirebaseUtils.checkUsernameExists(cleanUsername);
+                            if (exists) {
+                                alert('Username already taken!');
+                                return;
+                            }
+
+                            // Update user data with username
+                            const updateResult = await FirebaseUtils.saveUserData(user.uid, {
+                                username: cleanUsername
+                            });
+
+                            if (updateResult.success) {
+                                // Save username mapping
+                                await FirebaseUtils.saveUsernameMapping(cleanUsername, user.uid);
+                                alert('Username updated successfully!');
+                            } else {
+                                alert('Failed to update username: ' + updateResult.error);
+                                return;
+                            }
+                        }
+                    } else {
+                        alert('Username is already set: ' + currentData.username);
+                    }
+
+                    // Reload profile to show changes
+                    loadUserProfile(user.uid);
+                    
+                } catch (error) {
+                    alert('Error fixing user data: ' + error.message);
+                    console.error('Fix user data error:', error);
+                }
             }
         });
     }

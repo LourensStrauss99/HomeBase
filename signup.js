@@ -111,7 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = document.getElementById('confirm-password').value;
         const submitBtn = e.target.querySelector('button[type="submit"]');
         
+        // Debug: Log what we're getting from the form
+        console.log('Form data collected:');
+        console.log('Username:', username);
+        console.log('Email:', email);
+        console.log('Selected photo file:', selectedPhotoFile);
+        
         // Validate username
+        if (!username || username === '') {
+            alert('Please enter a username!');
+            return;
+        }
+        
         if (!/^[a-zA-Z0-9_]+$/.test(username)) {
             alert('Username can only contain letters, numbers, and underscores!');
             return;
