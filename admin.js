@@ -1,4 +1,6 @@
-// Admin dashboard script
+// Admin dashboard script with Supabase
+import { authFunctions, dbFunctions, storageFunctions } from './supabase-config.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Social media platform name detection function
     function detectPlatformName(url) {
@@ -154,60 +156,62 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRedirecting = false;
     let authCheckComplete = false;
     
-    // Check Firebase authentication
-    FirebaseUtils.onAuthStateChanged((user) => {
+    // Check Supabase authentication
+    authFunctions.onAuthStateChange((event, session) => {
         authCheckComplete = true;
         
-        if (!user && !isRedirecting) {
+        if (!session?.user && !isRedirecting) {
             // User is not authenticated, redirect to login
             isRedirecting = true;
             setTimeout(() => {
                 window.location.href = 'login.html';
             }, 100);
             return;
-        }
         
-        if (user) {
+        if (session?.user) {
             // User is authenticated, continue with admin dashboard
             // Store user info for compatibility with existing code
             localStorage.setItem('user', JSON.stringify({
-                uid: user.uid,
-                email: user.email
+                uid: session.user.id,
+                email: session.user.email
             }));
             
             // Load user profile data
-            loadUserProfile(user.uid);
+            loadUserProfile(session.user.id);
         }
     });
 
     // Load user profile data
     async function loadUserProfile(userId) {
         try {
-            const result = await FirebaseUtils.getUserData(userId);
-            if (result.success && result.data) {
-                const userData = result.data;
+            const userData = await dbFunctions.getUserData(userId);
+            
+            // Update username display
+            const adminUsername = document.getElementById('admin-username');
+            if (adminUsername) {
+                adminUsername.textContent = userData.username || 'User';
+            }
+            
+            // Update profile photo
+            const profilePhotoContainer = document.getElementById('profile-photo-container');
+            const adminProfilePhoto = document.getElementById('admin-profile-photo');
+            const changePhotoBtn = document.getElementById('change-photo-btn');
                 
-                // Update username display
-                const adminUsername = document.getElementById('admin-username');
-                if (adminUsername) {
-                    adminUsername.textContent = userData.username || 'User';
+            if (userData.photo_url && adminProfilePhoto) {
+                adminProfilePhoto.src = userData.photo_url;
+                if (profilePhotoContainer) {
+                    profilePhotoContainer.style.display = 'block';
                 }
-                
-                // Update profile photo
-                const profilePhotoContainer = document.getElementById('profile-photo-container');
-                const adminProfilePhoto = document.getElementById('admin-profile-photo');
-                const changePhotoBtn = document.getElementById('change-photo-btn');
-                
-                if (userData.photoURL && adminProfilePhoto) {
-                    adminProfilePhoto.src = userData.photoURL;
-                    if (profilePhotoContainer) {
-                        profilePhotoContainer.style.display = 'block';
-                    }
-                }
-                
-                if (changePhotoBtn) {
-                    changePhotoBtn.style.display = 'block';
-                }
+            }
+            
+            if (changePhotoBtn) {
+                changePhotoBtn.style.display = 'block';
+            }
+            
+            // Update bio
+            const userBio = document.getElementById('user-bio');
+            if (userBio) {
+                userBio.value = userData.bio || '';
             }
         } catch (error) {
             console.error('Error loading user profile:', error);
@@ -215,11 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Photo change functionality
-    const changePhotoBtn = document.getElementById('change-photo-btn');
+    const changePhotoBtnGlobal = document.getElementById('change-photo-btn');
     const newProfilePhotoInput = document.getElementById('new-profile-photo');
     
-    if (changePhotoBtn && newProfilePhotoInput) {
-        changePhotoBtn.addEventListener('click', () => {
+    if (changePhotoBtnGlobal && newProfilePhotoInput) {
+        changePhotoBtnGlobal.addEventListener('click', () => {
             newProfilePhotoInput.click();
         });
         
@@ -237,57 +241,85 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Only JPG, PNG, GIF, and WebP files are allowed');
                 }
                 
-                const user = FirebaseUtils.getCurrentUser();
+                const user = await authFunctions.getCurrentUser();
                 if (user) {
-                    changePhotoBtn.textContent = '📤 Uploading...';
-                    changePhotoBtn.disabled = true;
+                    changePhotoBtnGlobal.textContent = '📤 Uploading...';
+                    changePhotoBtnGlobal.disabled = true;
                     
                     try {
-                        // Get current user data to delete old photo
-                        const currentData = await FirebaseUtils.getUserData(user.uid);
-                        const oldPhotoPath = currentData.success ? currentData.data.photoPath : null;
+                        // Get current user data 
+                        const currentData = await dbFunctions.getUserData(user.id);
                         
                         // Upload new photo
-                        const uploadResult = await FirebaseUtils.uploadProfilePhoto(user.uid, file);
+                        const photoURL = await storageFunctions.uploadProfilePhoto(user.id, file);
                         
-                        if (uploadResult.success) {
-                            // Update user data with new photo
-                            const updateResult = await FirebaseUtils.saveUserData(user.uid, {
-                                photoURL: uploadResult.url,
-                                photoPath: uploadResult.path
-                            });
-                            
-                            if (updateResult.success) {
-                                // Delete old photo if it exists
-                                if (oldPhotoPath) {
-                                    await FirebaseUtils.deleteProfilePhoto(oldPhotoPath);
-                                }
-                                
-                                // Update UI
-                                const adminProfilePhoto = document.getElementById('admin-profile-photo');
-                                const profilePhotoContainer = document.getElementById('profile-photo-container');
-                                
-                                if (adminProfilePhoto) {
-                                    adminProfilePhoto.src = uploadResult.url;
-                                    if (profilePhotoContainer) {
-                                        profilePhotoContainer.style.display = 'block';
-                                    }
-                                }
-                                
-                                alert('Profile photo updated successfully!');
-                            } else {
-                                alert('Failed to update profile: ' + updateResult.error);
+                        // Update user data with new photo
+                        await dbFunctions.saveUserData(user.id, {
+                            email: currentData.email,
+                            username: currentData.username,
+                            photo_url: photoURL
+                        });
+                        
+                        // Update UI
+                        const adminProfilePhoto = document.getElementById('admin-profile-photo');
+                        const profilePhotoContainer = document.getElementById('profile-photo-container');
+                        
+                        if (adminProfilePhoto) {
+                            adminProfilePhoto.src = photoURL;
+                            if (profilePhotoContainer) {
+                                profilePhotoContainer.style.display = 'block';
                             }
-                        } else {
-                            alert('Failed to upload photo: ' + uploadResult.error);
                         }
+                        
+                        alert('Profile photo updated successfully!');
                     } catch (error) {
-                        alert('Error updating photo: ' + error.message);
+                        console.error('Photo upload error:', error);
+                        alert('Failed to upload photo: ' + error.message);
                     } finally {
-                        changePhotoBtn.textContent = '📸 Change Photo';
-                        changePhotoBtn.disabled = false;
+                        changePhotoBtnGlobal.textContent = '📸 Change Photo';
+                        changePhotoBtnGlobal.disabled = false;
                         newProfilePhotoInput.value = '';
                     }
+                }
+            }
+        });
+    }
+
+    // Bio editing functionality
+    const userBio = document.getElementById('user-bio');
+    const saveBioBtn = document.getElementById('save-bio-btn');
+    
+    if (saveBioBtn && userBio) {
+        saveBioBtn.addEventListener('click', async () => {
+            const user = await authFunctions.getCurrentUser();
+            if (user) {
+                const bioText = userBio.value.trim();
+                
+                if (bioText.length > 200) {
+                    alert('Bio must be 200 characters or less');
+                    return;
+                }
+                
+                try {
+                    saveBioBtn.textContent = '💾 Saving...';
+                    saveBioBtn.disabled = true;
+                    
+                    // Get current user data and update with bio
+                    const currentData = await dbFunctions.getUserData(user.id);
+                    await dbFunctions.saveUserData(user.id, {
+                        email: currentData.email,
+                        username: currentData.username,
+                        photo_url: currentData.photo_url,
+                        bio: bioText
+                    });
+                    
+                    alert('Bio saved successfully!');
+                } catch (error) {
+                    console.error('Bio save error:', error);
+                    alert('Failed to save bio: ' + error.message);
+                } finally {
+                    saveBioBtn.textContent = '💾 Save Bio';
+                    saveBioBtn.disabled = false;
                 }
             }
         });
@@ -323,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             try {
-                await FirebaseUtils.signOut();
+                await authFunctions.signOut();
                 localStorage.removeItem('user');
                 localStorage.removeItem('links');
                 window.location.href = 'index.html';
@@ -467,11 +499,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentPath = window.location.pathname;
             
             // Get current user's username
-            const user = FirebaseUtils.getCurrentUser();
+            const user = await authFunctions.getCurrentUser();
             if (user) {
-                const userDataResult = await FirebaseUtils.getUserData(user.uid);
-                if (userDataResult.success && userDataResult.data.username) {
-                    const username = userDataResult.data.username;
+                const userData = await dbFunctions.getUserData(user.id);
+                if (userData && userData.username) {
+                    const username = userData.username;
                     
                     // Check if we're on GitHub Pages
                     if (currentUrl.includes('github.io')) {
@@ -545,17 +577,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (checkUserDataBtn) {
         checkUserDataBtn.addEventListener('click', async () => {
-            const user = FirebaseUtils.getCurrentUser();
+            const user = await authFunctions.getCurrentUser();
             if (user) {
                 try {
-                    const result = await FirebaseUtils.getUserData(user.uid);
-                    if (result.success) {
-                        userDataJson.textContent = JSON.stringify(result.data, null, 2);
-                        userDataDisplay.style.display = 'block';
-                    } else {
-                        userDataJson.textContent = 'Error: ' + result.error;
-                        userDataDisplay.style.display = 'block';
-                    }
+                    const userData = await dbFunctions.getUserData(user.id);
+                    userDataJson.textContent = JSON.stringify(userData, null, 2);
+                    userDataDisplay.style.display = 'block';
                 } catch (error) {
                     userDataJson.textContent = 'Error: ' + error.message;
                     userDataDisplay.style.display = 'block';
@@ -566,35 +593,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (updateUsernameBtn) {
         updateUsernameBtn.addEventListener('click', async () => {
-            const user = FirebaseUtils.getCurrentUser();
+            const user = await authFunctions.getCurrentUser();
             if (user) {
                 const username = prompt('Enter a username for this account:');
                 if (username) {
                     try {
                         // Check if username exists
-                        const exists = await FirebaseUtils.checkUsernameExists(username);
+                        const exists = await dbFunctions.checkUsernameExists(username);
                         if (exists) {
                             alert('Username already taken!');
                             return;
                         }
 
-                        // Update user data
-                        const updateResult = await FirebaseUtils.saveUserData(user.uid, {
-                            username: username.toLowerCase().trim()
+                        // Get current user data and update it
+                        const currentData = await dbFunctions.getUserData(user.id);
+                        await dbFunctions.saveUserData(user.id, {
+                            email: currentData.email,
+                            username: username.toLowerCase().trim(),
+                            photo_url: currentData.photo_url
                         });
 
-                        if (updateResult.success) {
-                            // Save username mapping
-                            await FirebaseUtils.saveUsernameMapping(username.toLowerCase().trim(), user.uid);
-                            alert('Username updated successfully!');
-                            
-                            // Reload profile
-                            loadUserProfile(user.uid);
-                        } else {
-                            alert('Failed to update username: ' + updateResult.error);
-                        }
+                        alert('Username updated successfully!');
+                        
+                        // Reload profile
+                        loadUserProfile(user.id);
                     } catch (error) {
-                        alert('Error updating username: ' + error.message);
+                        alert('Failed to update username: ' + error.message);
                     }
                 }
             }
@@ -603,33 +627,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (initDatabaseBtn) {
         initDatabaseBtn.addEventListener('click', async () => {
-            const user = FirebaseUtils.getCurrentUser();
+            const user = await authFunctions.getCurrentUser();
             if (user) {
                 try {
                     initDatabaseBtn.textContent = '🔄 Initializing...';
                     initDatabaseBtn.disabled = true;
 
-                    // Initialize collections with dummy data to create them
-                    console.log('Initializing Firestore collections...');
+                    // Initialize user data in Supabase
+                    console.log('Initializing Supabase user data...');
                     
-                    // Create users collection structure (if user doesn't have complete data)
+                    // Create/update user record
                     const userData = {
                         email: user.email,
                         username: null,
-                        photoURL: null,
-                        photoPath: null,
-                        createdAt: new Date().toISOString(),
-                        subscription: { plan: 'free', status: 'active' },
-                        links: [],
-                        analytics: {
-                            totalViews: 0,
-                            totalClicks: 0,
-                            clickCounts: {}
-                        }
+                        photo_url: null
                     };
                     
-                    await FirebaseUtils.saveUserData(user.uid, userData);
-                    console.log('User collection initialized');
+                    await dbFunctions.saveUserData(user.id, userData);
+                    console.log('User data initialized');
                     
                     // Initialize usernames collection structure (create a dummy entry and remove it)
                     await db.collection('usernames').doc('_init').set({
@@ -659,17 +674,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fixUserDataBtn) {
         fixUserDataBtn.addEventListener('click', async () => {
-            const user = FirebaseUtils.getCurrentUser();
+            const user = await authFunctions.getCurrentUser();
             if (user) {
                 try {
                     // Get current user data
-                    const currentResult = await FirebaseUtils.getUserData(user.uid);
-                    if (!currentResult.success) {
-                        alert('Could not load current user data');
-                        return;
-                    }
-
-                    const currentData = currentResult.data;
+                    const currentData = await dbFunctions.getUserData(user.id);
                     console.log('Current user data:', currentData);
 
                     // Check if username is missing

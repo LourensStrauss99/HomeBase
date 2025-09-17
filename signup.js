@@ -1,10 +1,12 @@
-// Signup script with Firebase
+// Signup script with Supabase
+import { authFunctions, dbFunctions, storageFunctions } from './supabase-config.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     let isRedirecting = false;
     
     // Check if user is already logged in
-    FirebaseUtils.onAuthStateChanged((user) => {
-        if (user && !isRedirecting) {
+    authFunctions.onAuthStateChange((event, session) => {
+        if (session?.user && !isRedirecting) {
             // User is signed in, redirect to admin
             isRedirecting = true;
             setTimeout(() => {
@@ -152,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Check if username is already taken
             console.log('Checking username availability for:', username);
-            const usernameExists = await FirebaseUtils.checkUsernameExists(username);
+            const usernameExists = await dbFunctions.checkUsernameExists(username);
             console.log('Username exists check result:', usernameExists);
             
             if (usernameExists) {
@@ -162,66 +164,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            console.log('Creating Firebase user account...');
-            const result = await FirebaseUtils.signUp(email, password);
+            console.log('Creating Supabase user account...');
+            const result = await authFunctions.signUp(email, password, { username });
             
-            if (result.success) {
+            if (result.user) {
                 // Upload profile photo if selected
                 let photoURL = null;
-                let photoPath = null;
                 
                 if (selectedPhotoFile) {
                     submitBtn.textContent = 'Uploading Photo...';
-                    const photoResult = await FirebaseUtils.uploadProfilePhoto(result.user.uid, selectedPhotoFile);
-                    
-                    if (photoResult.success) {
-                        photoURL = photoResult.url;
-                        photoPath = photoResult.path;
-                    } else {
-                        console.warn('Photo upload failed:', photoResult.error);
+                    try {
+                        photoURL = await storageFunctions.uploadProfilePhoto(result.user.id, selectedPhotoFile);
+                        console.log('Photo uploaded successfully:', photoURL);
+                    } catch (photoError) {
+                        console.warn('Photo upload failed:', photoError);
                         // Continue without photo rather than failing signup
                     }
                 }
                 
                 submitBtn.textContent = 'Saving Profile...';
                 
-                // Initialize user data in Firestore
+                // Save user data to users table
                 const userData = {
-                    username: username,
                     email: email,
-                    photoURL: photoURL,
-                    photoPath: photoPath,
-                    createdAt: new Date().toISOString(),
-                    subscription: { plan: 'free', status: 'active' },
-                    links: [],
-                    analytics: {
-                        totalViews: 0,
-                        totalClicks: 0,
-                        clickCounts: {}
-                    }
+                    username: username,
+                    photo_url: photoURL
                 };
                 
-                console.log('Saving user data to Firestore:', userData);
-                const saveResult = await FirebaseUtils.saveUserData(result.user.uid, userData);
-                
-                if (!saveResult.success) {
-                    throw new Error('Failed to save user data: ' + saveResult.error);
-                }
-                
-                // Also save username mapping for lookups
-                console.log('Saving username mapping:', username, '→', result.user.uid);
-                const mappingResult = await FirebaseUtils.saveUsernameMapping(username, result.user.uid);
-                
-                if (!mappingResult.success) {
-                    console.warn('Failed to save username mapping:', mappingResult.error);
-                }
+                console.log('Saving user data to Supabase:', userData);
+                const savedUser = await dbFunctions.saveUserData(result.user.id, userData);
+                console.log('User data saved:', savedUser);
                 
                 alert('Account created successfully! Your HomeBase link is: ' + window.location.origin + '/HomeBase/profile.html?user=' + username);
                 window.location.href = 'admin.html';
             } else {
-                alert('Signup failed: ' + result.error);
+                throw new Error('Failed to create account');
             }
         } catch (error) {
+            console.error('Signup error:', error);
             alert('Signup error: ' + error.message);
         } finally {
             // Reset button state

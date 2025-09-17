@@ -1,4 +1,6 @@
-// Add interactivity to the links
+// Add interactivity to the links - Supabase version
+import { dbFunctions } from './supabase-config.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // Social media icon detection function using Simple Icons
     function detectSocialIcon(url) {
@@ -166,31 +168,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const result = await FirebaseUtils.getUserDataByUsername(username);
-            if (result.success && result.data) {
-                return {
-                    links: result.data.links || [],
-                    success: true,
-                    userData: result.data
-                };
-            } else {
-                // User not found, show default links
-                return {
-                    links: [
-                        { name: "User Not Found", url: "#", count: 0 }
-                    ],
-                    success: false,
-                    error: "User not found"
-                };
-            }
+            const userData = await dbFunctions.getUserByUsername(username);
+            
+            // Get user's links from user_links table
+            const userLinks = await dbFunctions.getUserLinks(userData.id);
+            
+            return {
+                links: userLinks || [],
+                success: true,
+                userData: userData
+            };
         } catch (error) {
             console.error('Error loading user links:', error);
+            // User not found, show default message
             return {
-                links: [
-                    { name: "Error Loading Profile", url: "#", count: 0 }
-                ],
+                links: [],
                 success: false,
-                error: error.message
+                error: "User not found"
             };
         }
     }
@@ -208,39 +202,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.title = `${result.userData.username}'s HomeBase`;
                 
                 // Update header if it exists
-                const headerElement = document.querySelector('h1');
+                const headerElement = document.querySelector('h1 a');
                 if (headerElement) {
-                    headerElement.innerHTML = `<a href="signup.html" style="color: inherit; text-decoration: none;">${result.userData.username}'s HomeBase</a>`;
+                    headerElement.textContent = `🏠 ${result.userData.username}'s HomeBase`;
                 }
                 
-                // Show profile photo and username if available
-                const profilePhotoSection = document.getElementById('profile-photo-section');
+                // Show profile information
+                const profilePhotoContainer = document.getElementById('profile-photo-container');
                 const profilePhoto = document.getElementById('profile-photo');
                 const profileUsername = document.getElementById('profile-username');
+                const profileBioContainer = document.getElementById('profile-bio-container');
+                const profileBio = document.getElementById('profile-bio');
                 const welcomeText = document.getElementById('welcome-text');
                 
-                if (result.userData.photoURL && profilePhotoSection && profilePhoto) {
-                    profilePhoto.src = result.userData.photoURL;
+                // Display username
+                if (profileUsername) {
+                    profileUsername.textContent = result.userData.username;
+                }
+                
+                // Display profile photo if available
+                if (result.userData.photo_url && profilePhoto) {
+                    profilePhoto.src = result.userData.photo_url;
                     profilePhoto.alt = `${result.userData.username}'s profile photo`;
-                    if (profileUsername) {
-                        profileUsername.textContent = result.userData.username;
+                    if (profilePhotoContainer) {
+                        profilePhotoContainer.style.display = 'block';
                     }
-                    profilePhotoSection.style.display = 'block';
-                    
-                    // Update welcome text
-                    if (welcomeText) {
-                        welcomeText.textContent = `Welcome to ${result.userData.username}'s HomeBase. Click the links below to visit their profiles.`;
+                }
+                
+                // Display bio if available
+                if (result.userData.bio && profileBio) {
+                    profileBio.textContent = result.userData.bio;
+                    if (profileBioContainer) {
+                        profileBioContainer.style.display = 'block';
                     }
-                } else if (profileUsername && welcomeText) {
-                    // Show username without photo
-                    if (profileUsername) {
-                        profileUsername.textContent = result.userData.username;
-                        profileUsername.style.display = 'block';
-                        profileUsername.style.textAlign = 'center';
-                        profileUsername.style.margin = '20px 0';
-                        profileUsername.style.fontSize = '1.8em';
-                    }
-                    welcomeText.textContent = `Welcome to ${result.userData.username}'s HomeBase. Click the links below to visit their profiles.`;
+                }
+                
+                // Update welcome text
+                if (welcomeText) {
+                    welcomeText.textContent = `Click the links below to visit ${result.userData.username}'s profiles.`;
                 }
             }
         } else {

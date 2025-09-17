@@ -33,6 +33,12 @@
                 <img id="admin-profile-photo" src="" alt="Your Profile Photo" class="admin-profile-photo">
             </div>
             <h2 id="admin-username">Loading...</h2>
+            <div class="bio-section" style="margin: 15px 0;">
+                <label for="user-bio" style="display: block; margin-bottom: 5px; font-weight: bold;">📝 Bio:</label>
+                <textarea id="user-bio" placeholder="Tell people about yourself..." style="width: 100%; max-width: 400px; height: 80px; padding: 10px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: inherit; resize: vertical;" maxlength="200"></textarea>
+                <button id="save-bio-btn" class="save-bio-btn" style="margin-top: 10px;">💾 Save Bio</button>
+                <small style="display: block; margin-top: 5px; opacity: 0.7;">Max 200 characters</small>
+            </div>
             <button id="change-photo-btn" class="change-photo-btn" style="display: none;">📸 Change Photo</button>
             <input type="file" id="new-profile-photo" accept="image/*" style="display: none;">
             
@@ -99,14 +105,8 @@
         <button id="logout-btn">Logout</button>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    
-    <!-- Firebase Configuration -->
-    <script src="firebase-config.js"></script>
-    <script src="admin.js"></script>
+    <!-- Supabase Configuration -->
+    <script type="module" src="supabase-config.js"></script>
+    <script type="module" src="admin.js"></script>
 </body>
 </html>
