@@ -23,10 +23,15 @@ const authFunctions = {
                 }
             });
             
+            console.log('Supabase signup response:', { data, error });
+            
             if (error) {
                 console.error('Supabase signup error:', error);
                 throw error;
             }
+            
+            console.log('Signup successful, user data:', data.user);
+            console.log('Session data:', data.session);
             
             console.log('Supabase signup success:', data);
             return { user: data.user, session: data.session };
