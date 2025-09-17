@@ -1,113 +1,5 @@
-// Signup script with Supabase - UMD version
-// Initialize Supabase client using the global variable
-const { createClient } = supabase;
-
-const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
-
-const supabaseClient = createClient(supabaseUrl, supabaseKey);
-
-console.log('Supabase client initialized:', supabaseClient);
-
-// Supabase functions
-const authFunctions = {
-    async signUp(email, password, userData = {}) {
-        try {
-            console.log('Attempting Supabase signup...', { email, userData });
-            
-            const { data, error } = await supabaseClient.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    data: userData
-                }
-            });
-            
-            if (error) {
-                console.error('Supabase signup error:', error);
-                throw error;
-            }
-            
-            console.log('Supabase signup success:', data);
-            return { user: data.user, session: data.session };
-        } catch (error) {
-            console.error('Signup error:', error);
-            throw error;
-        }
-    },
-
-    onAuthStateChange(callback) {
-        return supabaseClient.auth.onAuthStateChange(callback);
-    }
-};
-
-const dbFunctions = {
-    async saveUserData(userId, userData) {
-        try {
-            const { data, error } = await supabaseClient
-                .from('users')
-                .upsert({
-                    id: userId,
-                    email: userData.email,
-                    username: userData.username,
-                    photo_url: userData.photo_url || null,
-                    bio: userData.bio || null,
-                    updated_at: new Date().toISOString()
-                })
-                .select();
-
-            if (error) throw error;
-            console.log('User data saved:', data);
-            return data[0];
-        } catch (error) {
-            console.error('Save user data error:', error);
-            throw error;
-        }
-    },
-
-    async checkUsernameExists(username) {
-        try {
-            const { data, error } = await supabaseClient
-                .from('users')
-                .select('username')
-                .eq('username', username)
-                .single();
-
-            if (error && error.code !== 'PGRST116') throw error;
-            return !!data;
-        } catch (error) {
-            console.error('Check username error:', error);
-            return false;
-        }
-    }
-};
-
-const storageFunctions = {
-    async uploadProfilePhoto(userId, file) {
-        try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${userId}/profile.${fileExt}`;
-            
-            const { data, error } = await supabaseClient.storage
-                .from('profile-photos')
-                .upload(fileName, file, {
-                    cacheControl: '3600',
-                    upsert: true
-                });
-
-            if (error) throw error;
-
-            const { data: urlData } = supabaseClient.storage
-                .from('profile-photos')
-                .getPublicUrl(fileName);
-
-            return urlData.publicUrl;
-        } catch (error) {
-            console.error('Upload profile photo error:', error);
-            throw error;
-        }
-    }
-};
+// Signup script with Supabase
+import { authFunctions, dbFunctions, storageFunctions } from './supabase-config.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     let isRedirecting = false;
@@ -125,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load saved theme
     const savedTheme = localStorage.getItem('theme') || 'theme-light';
-    document.body.className = savedTheme;
+    document.body.className = savedTheme; // Replace all classes with saved theme
 
     // Theme change (if theme selector exists)
     const themeSelect = document.getElementById('theme-select');
@@ -150,8 +42,13 @@ document.addEventListener('DOMContentLoaded', () => {
             toggle.addEventListener('click', () => {
                 const isPassword = passwordInput.type === 'password';
                 
+                // Toggle input type
                 passwordInput.type = isPassword ? 'text' : 'password';
+                
+                // Toggle button class for styling
                 toggle.classList.toggle('visible', isPassword);
+                
+                // Update aria-label for accessibility
                 toggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
             });
         }
@@ -281,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('Photo uploaded successfully:', photoURL);
                     } catch (photoError) {
                         console.warn('Photo upload failed:', photoError);
+                        // Continue without photo rather than failing signup
                     }
                 }
                 

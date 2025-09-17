@@ -1,5 +1,45 @@
-// Add interactivity to the links - Supabase version
-import { dbFunctions } from './supabase-config.js';
+// Add interactivity to the links - Supabase UMD version
+// Initialize Supabase client using the global variable
+const { createClient } = supabase;
+
+const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+const dbFunctions = {
+    async getUserByUsername(username) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('*')
+                .eq('username', username)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Get user by username error:', error);
+            throw error;
+        }
+    },
+
+    async getUserLinks(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('user_links')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Get user links error:', error);
+            return [];
+        }
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // Social media icon detection function using Simple Icons

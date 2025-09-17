@@ -1,5 +1,121 @@
-// Admin dashboard script with Supabase
-import { authFunctions, dbFunctions, storageFunctions } from './supabase-config.js';
+// Admin dashboard script with Supabase - UMD version
+// Initialize Supabase client using the global variable
+const { createClient } = supabase;
+
+const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+// Supabase functions
+const authFunctions = {
+    async getCurrentUser() {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            return user;
+        } catch (error) {
+            console.error('Get current user error:', error);
+            return null;
+        }
+    },
+
+    onAuthStateChange(callback) {
+        return supabaseClient.auth.onAuthStateChange(callback);
+    },
+
+    async signOut() {
+        try {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) throw error;
+        } catch (error) {
+            console.error('Signout error:', error);
+            throw error;
+        }
+    }
+};
+
+const dbFunctions = {
+    async getUserData(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Get user data error:', error);
+            throw error;
+        }
+    },
+
+    async saveUserData(userId, userData) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('users')
+                .upsert({
+                    id: userId,
+                    email: userData.email,
+                    username: userData.username,
+                    photo_url: userData.photo_url || null,
+                    bio: userData.bio || null,
+                    updated_at: new Date().toISOString()
+                })
+                .select();
+
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Save user data error:', error);
+            throw error;
+        }
+    },
+
+    async checkUsernameExists(username) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('username')
+                .eq('username', username)
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return !!data;
+        } catch (error) {
+            console.error('Check username error:', error);
+            return false;
+        }
+    }
+};
+
+const storageFunctions = {
+    async uploadProfilePhoto(userId, file) {
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${userId}/profile.${fileExt}`;
+            
+            const { data, error } = await supabaseClient.storage
+                .from('profile-photos')
+                .upload(fileName, file, {
+                    cacheControl: '3600',
+                    upsert: true
+                });
+
+            if (error) throw error;
+
+            const { data: urlData } = supabaseClient.storage
+                .from('profile-photos')
+                .getPublicUrl(fileName);
+
+            return urlData.publicUrl;
+        } catch (error) {
+            console.error('Upload profile photo error:', error);
+            throw error;
+        }
+    }
+};
 
 document.addEventListener('DOMContentLoaded', () => {
     // Social media platform name detection function
