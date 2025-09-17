@@ -212,6 +212,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (headerElement) {
                     headerElement.innerHTML = `<a href="signup.html" style="color: inherit; text-decoration: none;">${result.userData.username}'s HomeBase</a>`;
                 }
+                
+                // Show profile photo and username if available
+                const profilePhotoSection = document.getElementById('profile-photo-section');
+                const profilePhoto = document.getElementById('profile-photo');
+                const profileUsername = document.getElementById('profile-username');
+                const welcomeText = document.getElementById('welcome-text');
+                
+                if (result.userData.photoURL && profilePhotoSection && profilePhoto) {
+                    profilePhoto.src = result.userData.photoURL;
+                    profilePhoto.alt = `${result.userData.username}'s profile photo`;
+                    if (profileUsername) {
+                        profileUsername.textContent = result.userData.username;
+                    }
+                    profilePhotoSection.style.display = 'block';
+                    
+                    // Update welcome text
+                    if (welcomeText) {
+                        welcomeText.textContent = `Welcome to ${result.userData.username}'s HomeBase. Click the links below to visit their profiles.`;
+                    }
+                } else if (profileUsername && welcomeText) {
+                    // Show username without photo
+                    if (profileUsername) {
+                        profileUsername.textContent = result.userData.username;
+                        profileUsername.style.display = 'block';
+                        profileUsername.style.textAlign = 'center';
+                        profileUsername.style.margin = '20px 0';
+                        profileUsername.style.fontSize = '1.8em';
+                    }
+                    welcomeText.textContent = `Welcome to ${result.userData.username}'s HomeBase. Click the links below to visit their profiles.`;
+                }
             }
         } else {
             // Default profile page or admin mode

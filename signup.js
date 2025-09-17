@@ -52,6 +52,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Photo upload preview functionality
+    const profilePhotoInput = document.getElementById('profile-photo');
+    const photoPreview = document.getElementById('photo-preview');
+    const previewImage = document.getElementById('preview-image');
+    const removePhotoBtn = document.getElementById('remove-photo');
+    let selectedPhotoFile = null;
+
+    if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            
+            if (file) {
+                // Validate file size
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    profilePhotoInput.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Only JPG, PNG, GIF, and WebP files are allowed');
+                    profilePhotoInput.value = '';
+                    return;
+                }
+                
+                // Show preview
+                selectedPhotoFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    photoPreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        // Remove photo functionality
+        if (removePhotoBtn) {
+            removePhotoBtn.addEventListener('click', () => {
+                selectedPhotoFile = null;
+                profilePhotoInput.value = '';
+                photoPreview.style.display = 'none';
+                previewImage.src = '';
+            });
+        }
+    }
+
     // Signup form
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -102,10 +151,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await FirebaseUtils.signUp(email, password);
             
             if (result.success) {
+                // Upload profile photo if selected
+                let photoURL = null;
+                let photoPath = null;
+                
+                if (selectedPhotoFile) {
+                    submitBtn.textContent = 'Uploading Photo...';
+                    const photoResult = await FirebaseUtils.uploadProfilePhoto(result.user.uid, selectedPhotoFile);
+                    
+                    if (photoResult.success) {
+                        photoURL = photoResult.url;
+                        photoPath = photoResult.path;
+                    } else {
+                        console.warn('Photo upload failed:', photoResult.error);
+                        // Continue without photo rather than failing signup
+                    }
+                }
+                
+                submitBtn.textContent = 'Saving Profile...';
+                
                 // Initialize user data in Firestore
                 const userData = {
                     username: username,
                     email: email,
+                    photoURL: photoURL,
+                    photoPath: photoPath,
                     createdAt: new Date().toISOString(),
                     subscription: { plan: 'free', status: 'active' },
                     links: [],

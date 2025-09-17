@@ -14,6 +14,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 // Firebase utility functions
 window.FirebaseUtils = {
@@ -171,6 +172,52 @@ window.FirebaseUtils = {
             }
         } catch (error) {
             return { success: false, error: error.message };
+        }
+    },
+    
+    // Upload profile photo
+    uploadProfilePhoto: async (userId, file) => {
+        try {
+            // Validate file
+            if (!file) {
+                return { success: false, error: 'No file provided' };
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                return { success: false, error: 'File size must be less than 5MB' };
+            }
+            
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                return { success: false, error: 'Only JPG, PNG, GIF, and WebP files are allowed' };
+            }
+            
+            // Create unique filename
+            const filename = `profile_photos/${userId}_${Date.now()}.${file.name.split('.').pop()}`;
+            const storageRef = storage.ref(filename);
+            
+            // Upload file
+            const snapshot = await storageRef.put(file);
+            const downloadURL = await snapshot.ref.getDownloadURL();
+            
+            return { success: true, url: downloadURL, path: filename };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // Delete profile photo
+    deleteProfilePhoto: async (photoPath) => {
+        try {
+            if (photoPath) {
+                const storageRef = storage.ref(photoPath);
+                await storageRef.delete();
+            }
+            return { success: true };
+        } catch (error) {
+            // Don't fail if photo doesn't exist
+            console.warn('Photo deletion error:', error);
+            return { success: true };
         }
     }
 };

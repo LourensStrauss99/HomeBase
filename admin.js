@@ -174,8 +174,124 @@ document.addEventListener('DOMContentLoaded', () => {
                 uid: user.uid,
                 email: user.email
             }));
+            
+            // Load user profile data
+            loadUserProfile(user.uid);
         }
     });
+
+    // Load user profile data
+    async function loadUserProfile(userId) {
+        try {
+            const result = await FirebaseUtils.getUserData(userId);
+            if (result.success && result.data) {
+                const userData = result.data;
+                
+                // Update username display
+                const adminUsername = document.getElementById('admin-username');
+                if (adminUsername) {
+                    adminUsername.textContent = userData.username || 'User';
+                }
+                
+                // Update profile photo
+                const profilePhotoContainer = document.getElementById('profile-photo-container');
+                const adminProfilePhoto = document.getElementById('admin-profile-photo');
+                const changePhotoBtn = document.getElementById('change-photo-btn');
+                
+                if (userData.photoURL && adminProfilePhoto) {
+                    adminProfilePhoto.src = userData.photoURL;
+                    if (profilePhotoContainer) {
+                        profilePhotoContainer.style.display = 'block';
+                    }
+                }
+                
+                if (changePhotoBtn) {
+                    changePhotoBtn.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+    }
+
+    // Photo change functionality
+    const changePhotoBtn = document.getElementById('change-photo-btn');
+    const newProfilePhotoInput = document.getElementById('new-profile-photo');
+    
+    if (changePhotoBtn && newProfilePhotoInput) {
+        changePhotoBtn.addEventListener('click', () => {
+            newProfilePhotoInput.click();
+        });
+        
+        newProfilePhotoInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    return;
+                }
+                
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Only JPG, PNG, GIF, and WebP files are allowed');
+                }
+                
+                const user = FirebaseUtils.getCurrentUser();
+                if (user) {
+                    changePhotoBtn.textContent = '📤 Uploading...';
+                    changePhotoBtn.disabled = true;
+                    
+                    try {
+                        // Get current user data to delete old photo
+                        const currentData = await FirebaseUtils.getUserData(user.uid);
+                        const oldPhotoPath = currentData.success ? currentData.data.photoPath : null;
+                        
+                        // Upload new photo
+                        const uploadResult = await FirebaseUtils.uploadProfilePhoto(user.uid, file);
+                        
+                        if (uploadResult.success) {
+                            // Update user data with new photo
+                            const updateResult = await FirebaseUtils.saveUserData(user.uid, {
+                                photoURL: uploadResult.url,
+                                photoPath: uploadResult.path
+                            });
+                            
+                            if (updateResult.success) {
+                                // Delete old photo if it exists
+                                if (oldPhotoPath) {
+                                    await FirebaseUtils.deleteProfilePhoto(oldPhotoPath);
+                                }
+                                
+                                // Update UI
+                                const adminProfilePhoto = document.getElementById('admin-profile-photo');
+                                const profilePhotoContainer = document.getElementById('profile-photo-container');
+                                
+                                if (adminProfilePhoto) {
+                                    adminProfilePhoto.src = uploadResult.url;
+                                    if (profilePhotoContainer) {
+                                        profilePhotoContainer.style.display = 'block';
+                                    }
+                                }
+                                
+                                alert('Profile photo updated successfully!');
+                            } else {
+                                alert('Failed to update profile: ' + updateResult.error);
+                            }
+                        } else {
+                            alert('Failed to upload photo: ' + uploadResult.error);
+                        }
+                    } catch (error) {
+                        alert('Error updating photo: ' + error.message);
+                    } finally {
+                        changePhotoBtn.textContent = '📸 Change Photo';
+                        changePhotoBtn.disabled = false;
+                        newProfilePhotoInput.value = '';
+                    }
+                }
+            }
+        });
+    }
 
     // Load saved theme
     const savedTheme = localStorage.getItem('theme') || 'theme-light';
