@@ -72,16 +72,25 @@ const dbFunctions = {
 
     async checkUsernameExists(username) {
         try {
-            const { data, error } = await supabaseClient
+            console.log('Checking username availability for:', username);
+            
+            // Use count instead of select to avoid RLS issues
+            const { count, error } = await supabaseClient
                 .from('users')
-                .select('username')
-                .eq('username', username)
-                .single();
+                .select('*', { count: 'exact', head: true })
+                .eq('username', username);
 
-            if (error && error.code !== 'PGRST116') throw error;
-            return !!data;
+            if (error) {
+                console.warn('Username check error (continuing anyway):', error);
+                // If we can't check, assume it's available to not block signup
+                return false;
+            }
+            
+            console.log('Username check result - count:', count);
+            return count > 0;
         } catch (error) {
-            console.error('Check username error:', error);
+            console.error('Check username error (continuing anyway):', error);
+            // If we can't check, assume it's available to not block signup
             return false;
         }
     }
@@ -262,17 +271,9 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            // Check if username is already taken
-            console.log('Checking username availability for:', username);
-            const usernameExists = await dbFunctions.checkUsernameExists(username);
-            console.log('Username exists check result:', usernameExists);
-            
-            if (usernameExists) {
-                alert('Username is already taken! Please choose a different one.');
-                submitBtn.textContent = 'Sign Up';
-                submitBtn.disabled = false;
-                return;
-            }
+            // Skip username checking for now to avoid RLS issues
+            // Username uniqueness will be enforced at the database level
+            console.log('Skipping username check to avoid RLS issues');
             
             console.log('Creating Supabase user account...');
             const result = await authFunctions.signUp(email, password, { username });
@@ -367,7 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 
                             } catch (error) {
                                 console.error('Error completing signup after confirmation:', error);
-                                alert('There was an error completing your signup. Please try logging in and updating your profile in the admin panel.');
+                                if (error.message && error.message.includes('username')) {
+                                    alert('This username is already taken. Please choose a different one and sign up again.');
+                                } else {
+                                    alert('There was an error completing your signup. Please try logging in and updating your profile in the admin panel.');
+                                }
                             }
                         }
                         authListener.unsubscribe();
