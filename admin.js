@@ -346,59 +346,76 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (homebaseUrlInput && copyLinkBtn) {
         // Smart URL generation for different deployment environments
-        function generateHomeBaseUrl() {
+        async function generateHomeBaseUrl() {
             const currentUrl = window.location.origin;
             const currentPath = window.location.pathname;
             
-            // Check if we're on GitHub Pages
-            if (currentUrl.includes('github.io')) {
-                // GitHub Pages deployment
-                if (currentPath.includes('/HomeBase/')) {
-                    // We're in the repository subdirectory
-                    return `${currentUrl}/HomeBase/profile.html`;
-                } else {
-                    // We're at the root (custom domain or root deployment)
-                    return `${currentUrl}/profile.html`;
+            // Get current user's username
+            const user = FirebaseUtils.getCurrentUser();
+            if (user) {
+                const userDataResult = await FirebaseUtils.getUserData(user.uid);
+                if (userDataResult.success && userDataResult.data.username) {
+                    const username = userDataResult.data.username;
+                    
+                    // Check if we're on GitHub Pages
+                    if (currentUrl.includes('github.io')) {
+                        // GitHub Pages deployment
+                        if (currentPath.includes('/HomeBase/')) {
+                            // We're in the repository subdirectory
+                            return `${currentUrl}/HomeBase/profile.html?user=${username}`;
+                        } else {
+                            // We're at the root (custom domain or root deployment)
+                            return `${currentUrl}/profile.html?user=${username}`;
+                        }
+                    }
+                    
+                    // Localhost or custom domain
+                    if (currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
+                        // Local development
+                        return `${currentUrl}/profile.html?user=${username}`;
+                    }
+                    
+                    // Custom domain deployment
+                    return `${currentUrl}/profile.html?user=${username}`;
                 }
             }
             
-            // Localhost or custom domain
-            if (currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
-                // Local development
-                return `${currentUrl}/profile.html`;
-            }
-            
-            // Custom domain deployment
+            // Fallback if no user data
             return `${currentUrl}/profile.html`;
         }
         
-        const homebaseUrl = generateHomeBaseUrl();
-        homebaseUrlInput.value = homebaseUrl;
-        
-        // Copy to clipboard functionality
-        copyLinkBtn.addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(homebaseUrl);
-                copyLinkBtn.textContent = '✅ Copied!';
-                copyLinkBtn.classList.add('copied');
-                
-                // Reset button after 2 seconds
-                setTimeout(() => {
-                    copyLinkBtn.textContent = '📋 Copy';
-                    copyLinkBtn.classList.remove('copied');
-                }, 2000);
-            } catch (err) {
-                // Fallback for older browsers
-                homebaseUrlInput.select();
-                document.execCommand('copy');
-                copyLinkBtn.textContent = '✅ Copied!';
-                copyLinkBtn.classList.add('copied');
-                
-                setTimeout(() => {
-                    copyLinkBtn.textContent = '📋 Copy';
-                    copyLinkBtn.classList.remove('copied');
-                }, 2000);
-            }
+        // Initialize URL (async)
+        generateHomeBaseUrl().then(homebaseUrl => {
+            homebaseUrlInput.value = homebaseUrl;
+            
+            // Copy to clipboard functionality
+            copyLinkBtn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(homebaseUrl);
+                    copyLinkBtn.textContent = '✅ Copied!';
+                    copyLinkBtn.classList.add('copied');
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        copyLinkBtn.textContent = '📋 Copy';
+                        copyLinkBtn.classList.remove('copied');
+                    }, 2000);
+                } catch (err) {
+                    // Fallback for older browsers
+                    homebaseUrlInput.select();
+                    document.execCommand('copy');
+                    copyLinkBtn.textContent = '✅ Copied!';
+                    copyLinkBtn.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        copyLinkBtn.textContent = '📋 Copy';
+                        copyLinkBtn.classList.remove('copied');
+                    }, 2000);
+                }
+            });
+        }).catch(error => {
+            console.error('Error generating HomeBase URL:', error);
+            homebaseUrlInput.value = 'Error loading profile URL';
         });
     }
 });

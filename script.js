@@ -140,17 +140,92 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Default links - these will show on first visit
-    const defaultLinks = [
-        { name: "YouTube", url: "https://youtube.com/@yourname", count: 2 },
-        { name: "TikTok", url: "https://tiktok.com/@yourname", count: 2 },
-        { name: "Facebook", url: "https://facebook.com/yourname", count: 0 },
-        { name: "Instagram", url: "https://instagram.com/yourname", count: 0 }
-    ];
+    // Check if we're loading a specific user's profile
+    const urlParams = new URLSearchParams(window.location.search);
+    const profileUsername = urlParams.get('user');
+    
+    // Variables for links and click tracking
+    let links = [];
+    let clickCounts = {};
+    let isUserProfile = false;
+    let currentUserId = null;
 
-    // Load links from localStorage or use defaults
-    let links = JSON.parse(localStorage.getItem('links')) || defaultLinks;
-    let clickCounts = JSON.parse(localStorage.getItem('clickCounts')) || {};
+    // Function to load user-specific links
+    async function loadUserLinks(username) {
+        if (!username) {
+            // No username provided, use default links
+            return {
+                links: [
+                    { name: "YouTube", url: "https://youtube.com/@yourname", count: 2 },
+                    { name: "TikTok", url: "https://tiktok.com/@yourname", count: 2 },
+                    { name: "Facebook", url: "https://facebook.com/yourname", count: 0 },
+                    { name: "Instagram", url: "https://instagram.com/yourname", count: 0 }
+                ],
+                success: true
+            };
+        }
+
+        try {
+            const result = await FirebaseUtils.getUserDataByUsername(username);
+            if (result.success && result.data) {
+                return {
+                    links: result.data.links || [],
+                    success: true,
+                    userData: result.data
+                };
+            } else {
+                // User not found, show default links
+                return {
+                    links: [
+                        { name: "User Not Found", url: "#", count: 0 }
+                    ],
+                    success: false,
+                    error: "User not found"
+                };
+            }
+        } catch (error) {
+            console.error('Error loading user links:', error);
+            return {
+                links: [
+                    { name: "Error Loading Profile", url: "#", count: 0 }
+                ],
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    // Initialize links based on profile type
+    async function initializeLinks() {
+        if (profileUsername) {
+            // Loading a specific user's profile
+            isUserProfile = true;
+            const result = await loadUserLinks(profileUsername);
+            links = result.links;
+            
+            if (result.success && result.userData) {
+                // Update page title with username
+                document.title = `${result.userData.username}'s HomeBase`;
+                
+                // Update header if it exists
+                const headerElement = document.querySelector('h1');
+                if (headerElement) {
+                    headerElement.innerHTML = `<a href="signup.html" style="color: inherit; text-decoration: none;">${result.userData.username}'s HomeBase</a>`;
+                }
+            }
+        } else {
+            // Default profile page or admin mode
+            links = JSON.parse(localStorage.getItem('links')) || [
+                { name: "YouTube", url: "https://youtube.com/@yourname", count: 2 },
+                { name: "TikTok", url: "https://tiktok.com/@yourname", count: 2 },
+                { name: "Facebook", url: "https://facebook.com/yourname", count: 0 },
+                { name: "Instagram", url: "https://instagram.com/yourname", count: 0 }
+            ];
+        }
+        
+        clickCounts = JSON.parse(localStorage.getItem('clickCounts')) || {};
+        renderLinks();
+    }
 
     // Function to render links
     function renderLinks() {
@@ -187,9 +262,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (link.url === '#') {
                     e.preventDefault();
                 }
-                link.count++;
-                linkElement.querySelector('.count').textContent = link.count;
-                localStorage.setItem('links', JSON.stringify(links));
+                
+                // Only increment count for valid links
+                if (link.url !== '#' && isUserProfile) {
+                    link.count++;
+                    linkElement.querySelector('.count').textContent = link.count;
+                    
+                    // For user profiles, we'd want to update Firestore here
+                    // For now, just track locally for demo purposes
+                    if (!isUserProfile) {
+                        localStorage.setItem('links', JSON.stringify(links));
+                    }
+                }
             });
 
             // Hover effects
@@ -226,6 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initial render
-    renderLinks();
+    // Initialize everything
+    initializeLinks();
 });

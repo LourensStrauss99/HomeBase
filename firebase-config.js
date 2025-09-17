@@ -120,5 +120,57 @@ window.FirebaseUtils = {
         } catch (error) {
             return { success: false, error: error.message };
         }
+    },
+    
+    // Check if username exists
+    checkUsernameExists: async (username) => {
+        try {
+            const doc = await db.collection('usernames').doc(username.toLowerCase()).get();
+            return doc.exists;
+        } catch (error) {
+            console.error('Error checking username:', error);
+            return true; // Return true to be safe if there's an error
+        }
+    },
+    
+    // Save username mapping
+    saveUsernameMapping: async (username, userId) => {
+        try {
+            await db.collection('usernames').doc(username.toLowerCase()).set({
+                userId: userId,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // Get user ID by username
+    getUserIdByUsername: async (username) => {
+        try {
+            const doc = await db.collection('usernames').doc(username.toLowerCase()).get();
+            if (doc.exists) {
+                return { success: true, userId: doc.data().userId };
+            } else {
+                return { success: false, error: 'Username not found' };
+            }
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+    
+    // Get user data by username
+    getUserDataByUsername: async (username) => {
+        try {
+            const userIdResult = await this.getUserIdByUsername(username);
+            if (userIdResult.success) {
+                return await this.getUserData(userIdResult.userId);
+            } else {
+                return userIdResult;
+            }
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 };

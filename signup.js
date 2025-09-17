@@ -56,10 +56,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const username = document.getElementById('username').value.toLowerCase().trim();
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
         const submitBtn = e.target.querySelector('button[type="submit"]');
+        
+        // Validate username
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            alert('Username can only contain letters, numbers, and underscores!');
+            return;
+        }
+        
+        if (username.length < 3 || username.length > 20) {
+            alert('Username must be between 3-20 characters!');
+            return;
+        }
         
         // Validate passwords match
         if (password !== confirmPassword) {
@@ -78,11 +90,21 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
+            // Check if username is already taken
+            const usernameExists = await FirebaseUtils.checkUsernameExists(username);
+            if (usernameExists) {
+                alert('Username is already taken! Please choose a different one.');
+                submitBtn.textContent = 'Sign Up';
+                submitBtn.disabled = false;
+                return;
+            }
+            
             const result = await FirebaseUtils.signUp(email, password);
             
             if (result.success) {
                 // Initialize user data in Firestore
                 const userData = {
+                    username: username,
                     email: email,
                     createdAt: new Date().toISOString(),
                     subscription: { plan: 'free', status: 'active' },
@@ -96,7 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 await FirebaseUtils.saveUserData(result.user.uid, userData);
                 
-                alert('Account created successfully! Redirecting to admin panel...');
+                // Also save username mapping for lookups
+                await FirebaseUtils.saveUsernameMapping(username, result.user.uid);
+                
+                alert('Account created successfully! Your HomeBase link is: ' + window.location.origin + '/HomeBase/profile.html?user=' + username);
                 window.location.href = 'admin.html';
             } else {
                 alert('Signup failed: ' + result.error);
