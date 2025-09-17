@@ -1,18 +1,30 @@
 // Supabase Configuration
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
+import { createClient } from 'https://unpkg.com/@supabase/supabase-js@2/dist/module/index.js'
 
 // Supabase configuration
 const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co'
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY1NTA2MDUsImV4cCI6MjA0MjEyNjYwNX0.DYvhWNLpJnACW3RA8A5RJJrllDJF_k8QT5Q_xGEJJO4'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU'
+
+// Validate configuration
+if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase URL and API key are required');
+}
 
 // Initialize Supabase client
 const supabase = createClient(supabaseUrl, supabaseKey)
+
+// Test the connection immediately
+console.log('Supabase client initialized:', supabase)
+console.log('Supabase URL:', supabaseUrl)
+console.log('API Key (first 20 chars):', supabaseKey.substring(0, 20) + '...')
 
 // Authentication functions
 export const authFunctions = {
     // Sign up with email and password
     async signUp(email, password, userData = {}) {
         try {
+            console.log('Attempting Supabase signup...', { email, userData })
+            
             const { data, error } = await supabase.auth.signUp({
                 email: email,
                 password: password,
@@ -21,7 +33,12 @@ export const authFunctions = {
                 }
             })
             
-            if (error) throw error
+            if (error) {
+                console.error('Supabase signup error:', error)
+                throw error
+            }
+            
+            console.log('Supabase signup success:', data)
             return { user: data.user, session: data.session }
         } catch (error) {
             console.error('Signup error:', error)
