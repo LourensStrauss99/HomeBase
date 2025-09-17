@@ -214,12 +214,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
+        const bio = document.getElementById('bio').value.trim();
         const submitBtn = e.target.querySelector('button[type="submit"]');
         
         // Debug: Log what we're getting from the form
         console.log('Form data collected:');
         console.log('Username:', username);
         console.log('Email:', email);
+        console.log('Bio:', bio);
         console.log('Selected photo file:', selectedPhotoFile);
         
         // Validate username
@@ -271,34 +273,90 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await authFunctions.signUp(email, password, { username });
             
             if (result.user) {
-                // Upload profile photo if selected
-                let photoURL = null;
-                
-                if (selectedPhotoFile) {
-                    submitBtn.textContent = 'Uploading Photo...';
-                    try {
-                        photoURL = await storageFunctions.uploadProfilePhoto(result.user.id, selectedPhotoFile);
-                        console.log('Photo uploaded successfully:', photoURL);
-                    } catch (photoError) {
-                        console.warn('Photo upload failed:', photoError);
-                    }
-                }
-                
-                submitBtn.textContent = 'Saving Profile...';
-                
-                // Save user data to users table
-                const userData = {
-                    email: email,
+                // Store signup data for after email confirmation
+                const signupData = {
+                    userId: result.user.id,
                     username: username,
-                    photo_url: photoURL
+                    email: email,
+                    bio: bio,
+                    photoFile: null // Will be set below if photo selected
                 };
                 
-                console.log('Saving user data to Supabase:', userData);
-                const savedUser = await dbFunctions.saveUserData(result.user.id, userData);
-                console.log('User data saved:', savedUser);
+                // If photo selected, convert to base64 for storage
+                if (selectedPhotoFile) {
+                    const base64Data = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            resolve({
+                                data: e.target.result,
+                                name: selectedPhotoFile.name,
+                                type: selectedPhotoFile.type
+                            });
+                        };
+                        reader.readAsDataURL(selectedPhotoFile);
+                    });
+                    signupData.photoFile = base64Data;
+                }
                 
-                alert('Account created successfully! Your HomeBase link is: ' + window.location.origin + '/HomeBase/profile.html?user=' + username);
-                window.location.href = 'admin.html';
+                localStorage.setItem('pendingSignupData', JSON.stringify(signupData));
+                
+                alert('Account created! Please check your email and click the confirmation link to complete your signup.');
+                submitBtn.textContent = 'Sign Up';
+                submitBtn.disabled = false;
+                
+                // Listen for auth state change to complete signup
+                const { data: authListener } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session) {
+                        const pendingData = localStorage.getItem('pendingSignupData');
+                        if (pendingData) {
+                            try {
+                                const data = JSON.parse(pendingData);
+                                
+                                // Upload profile photo if selected
+                                let photoURL = null;
+                                if (data.photoFile) {
+                                    submitBtn.textContent = 'Uploading Photo...';
+                                    try {
+                                        // Convert base64 back to blob
+                                        const response = await fetch(data.photoFile.data);
+                                        const blob = await response.blob();
+                                        const file = new File([blob], data.photoFile.name, { type: data.photoFile.type });
+                                        
+                                        photoURL = await storageFunctions.uploadProfilePhoto(data.userId, file);
+                                        console.log('Photo uploaded successfully:', photoURL);
+                                    } catch (photoError) {
+                                        console.warn('Photo upload failed:', photoError);
+                                    }
+                                }
+                                
+                                // Save user data to users table
+                                const userData = {
+                                    email: data.email,
+                                    username: data.username,
+                                    bio: data.bio,
+                                    photo_url: photoURL
+                                };
+                                
+                                console.log('Saving user data after email confirmation:', userData);
+                                const savedUser = await dbFunctions.saveUserData(data.userId, userData);
+                                console.log('User data saved:', savedUser);
+                                
+                                // Clear pending data
+                                localStorage.removeItem('pendingSignupData');
+                                
+                                // Redirect to admin
+                                alert('Signup completed! Your HomeBase link is: ' + window.location.origin + '/HomeBase/profile.html?user=' + data.username);
+                                window.location.href = 'admin.html';
+                                
+                            } catch (error) {
+                                console.error('Error completing signup after confirmation:', error);
+                                alert('There was an error completing your signup. Please try logging in and updating your profile in the admin panel.');
+                            }
+                        }
+                        authListener.unsubscribe();
+                    }
+                });
+                
             } else {
                 throw new Error('Failed to create account');
             }
