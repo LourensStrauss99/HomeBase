@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation - HomeBase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-theme">
+    <div class="container">
+        <h1>Confirming Your Email...</h1>
+        <p id="status">Processing your email confirmation...</p>
+        <div id="loading" style="text-align: center;">
+            <div style="display: inline-block; animation: spin 1s linear infinite;">⏳</div>
+        </div>
+    </div>
+
+    <!-- Supabase UMD Bundle -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase client
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const statusEl = document.getElementById('status');
+            const loadingEl = document.getElementById('loading');
+
+            try {
+                // Handle the auth callback
+                const { data, error } = await supabaseClient.auth.getSession();
+                
+                if (error) {
+                    console.error('Auth error:', error);
+                    statusEl.textContent = 'Error confirming email: ' + error.message;
+                    loadingEl.style.display = 'none';
+                    return;
+                }
+
+                if (data.session) {
+                    console.log('User is authenticated:', data.session.user);
+                    statusEl.textContent = 'Email confirmed successfully! Completing your signup...';
+                    
+                    // Check for pending signup data
+                    const pendingData = localStorage.getItem('pendingSignupData');
+                    if (pendingData) {
+                        try {
+                            const signupData = JSON.parse(pendingData);
+                            
+                            // Save user data to database
+                            const { data: saveData, error: saveError } = await supabaseClient
+                                .from('users')
+                                .upsert({
+                                    id: data.session.user.id,
+                                    email: signupData.email,
+                                    username: signupData.username,
+                                    bio: signupData.bio || null,
+                                    photo_url: null,
+                                    updated_at: new Date().toISOString()
+                                })
+                                .select();
+
+                            if (saveError) {
+                                console.error('Error saving user data:', saveError);
+                                statusEl.textContent = 'Email confirmed but error saving profile. Please update your profile in the admin panel.';
+                            } else {
+                                console.log('User data saved:', saveData);
+                                localStorage.removeItem('pendingSignupData');
+                                statusEl.textContent = 'Signup completed successfully! Redirecting to your admin panel...';
+                                
+                                setTimeout(() => {
+                                    window.location.href = 'admin.html';
+                                }, 2000);
+                            }
+                        } catch (err) {
+                            console.error('Error processing signup data:', err);
+                            statusEl.textContent = 'Email confirmed! Please complete your profile in the admin panel.';
+                            setTimeout(() => {
+                                window.location.href = 'admin.html';
+                            }, 2000);
+                        }
+                    } else {
+                        statusEl.textContent = 'Email confirmed! Redirecting to admin panel...';
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 2000);
+                    }
+                } else {
+                    statusEl.textContent = 'Please check your email and click the confirmation link.';
+                    loadingEl.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                statusEl.textContent = 'An unexpected error occurred. Please try signing in manually.';
+                loadingEl.style.display = 'none';
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
