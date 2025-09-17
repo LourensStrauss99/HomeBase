@@ -277,6 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Creating Supabase user account...');
             const result = await authFunctions.signUp(email, password, { username });
             
+            console.log('Signup result received:', result);
+            console.log('User object:', result.user);
+            console.log('User email confirmed:', result.user?.email_confirmed_at);
+            console.log('User confirmation sent at:', result.user?.confirmation_sent_at);
+            
             if (result.user) {
                 // Store signup data for after email confirmation
                 const signupData = {
@@ -305,7 +310,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 localStorage.setItem('pendingSignupData', JSON.stringify(signupData));
                 
-                alert('Account created! Please check your email and click the confirmation link to complete your signup.');
+                console.log('Stored signup data for email confirmation:', signupData);
+                
+                if (result.user.email_confirmed_at) {
+                    alert('Account created and confirmed! Redirecting to admin...');
+                    window.location.href = 'admin.html';
+                } else {
+                    alert('Account created! Please check your email and click the confirmation link to complete your signup.');
+                }
                 submitBtn.textContent = 'Sign Up';
                 submitBtn.disabled = false;
                 
