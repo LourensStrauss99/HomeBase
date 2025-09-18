@@ -45,6 +45,56 @@ const authFunctions = {
 
     onAuthStateChange(callback) {
         return supabaseClient.auth.onAuthStateChange(callback);
+    },
+
+    async ensureUserRecord(user) {
+        try {
+            console.log('Checking if user record exists for:', user.id);
+            
+            // Try to get user data
+            const { data, error } = await supabaseClient
+                .from('users')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (error && (error.code === 'PGRST116' || error.message.includes('No rows'))) {
+                console.log('User record not found, creating one...');
+                
+                // Create user record from auth data
+                const username = user.user_metadata?.username || 
+                                user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                
+                const { data: newUserData, error: createError } = await supabaseClient
+                    .from('users')
+                    .upsert({
+                        id: user.id,
+                        email: user.email,
+                        username: username,
+                        bio: null,
+                        photo_url: null,
+                        updated_at: new Date().toISOString()
+                    })
+                    .select();
+
+                if (createError) {
+                    console.error('Error creating user record:', createError);
+                    throw createError;
+                }
+                
+                console.log('User record created successfully:', newUserData[0]);
+                return newUserData[0];
+            } else if (error) {
+                console.error('Error checking user record:', error);
+                throw error;
+            } else {
+                console.log('User record already exists:', data);
+                return data;
+            }
+        } catch (error) {
+            console.error('Error ensuring user record:', error);
+            throw error;
+        }
     }
 };
 
@@ -97,6 +147,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await authFunctions.signIn(email, password);
             
             if (result.user) {
+                console.log('Login successful, ensuring user record exists...');
+                
+                try {
+                    // Ensure user record exists in users table
+                    await authFunctions.ensureUserRecord(result.user);
+                    console.log('User record verified/created');
+                } catch (userRecordError) {
+                    console.warn('Warning: Could not ensure user record:', userRecordError);
+                    // Don't fail login if user record creation fails
+                }
+                
                 alert('Logged in successfully!');
                 window.location.href = 'admin.html';
             } else {

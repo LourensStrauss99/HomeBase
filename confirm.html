@@ -73,84 +73,100 @@
                     
                     // Check for pending signup data
                     const pendingData = localStorage.getItem('pendingSignupData');
+                    let signupData = null;
+                    
                     if (pendingData) {
                         try {
-                            const signupData = JSON.parse(pendingData);
-                            
-                            // Handle photo upload if present
-                            let photoURL = null;
-                            if (signupData.photoFile) {
-                                statusEl.textContent = 'Email confirmed! Uploading profile photo...';
-                                try {
-                                    // Convert base64 back to blob for upload
-                                    const response = await fetch(signupData.photoFile.data);
-                                    const blob = await response.blob();
-                                    const file = new File([blob], signupData.photoFile.name, { type: signupData.photoFile.type });
-                                    
-                                    // Upload to Supabase Storage
-                                    const fileExt = file.name.split('.').pop();
-                                    const fileName = `${data.session.user.id}/profile.${fileExt}`;
-                                    
-                                    const { data: uploadData, error: uploadError } = await supabaseClient.storage
-                                        .from('profile-photos')
-                                        .upload(fileName, file, {
-                                            cacheControl: '3600',
-                                            upsert: true
-                                        });
-
-                                    if (uploadError) {
-                                        console.warn('Photo upload failed:', uploadError);
-                                    } else {
-                                        const { data: urlData } = supabaseClient.storage
-                                            .from('profile-photos')
-                                            .getPublicUrl(fileName);
-                                        photoURL = urlData.publicUrl;
-                                        console.log('Photo uploaded successfully:', photoURL);
-                                    }
-                                } catch (photoError) {
-                                    console.warn('Photo upload failed:', photoError);
-                                }
-                            }
-                            
-                            statusEl.textContent = 'Email confirmed! Saving your profile...';
-                            
-                            // Save user data to database
-                            const { data: saveData, error: saveError } = await supabaseClient
-                                .from('users')
-                                .upsert({
-                                    id: data.session.user.id,
-                                    email: signupData.email,
-                                    username: signupData.username,
-                                    bio: signupData.bio || null,
-                                    photo_url: photoURL,
-                                    updated_at: new Date().toISOString()
-                                })
-                                .select();
-
-                            if (saveError) {
-                                console.error('Error saving user data:', saveError);
-                                statusEl.textContent = 'Email confirmed but error saving profile. Redirecting to admin panel...';
-                                setTimeout(() => {
-                                    window.location.href = 'admin.html';
-                                }, 2000);
-                            } else {
-                                console.log('User data saved:', saveData);
-                                localStorage.removeItem('pendingSignupData');
-                                statusEl.innerHTML = `Signup completed successfully! Welcome to HomeBase!<br><br>Your HomeBase link: <a href="${window.location.origin}/HomeBase/profile.html?user=${signupData.username}" target="_blank">${window.location.origin}/HomeBase/profile.html?user=${signupData.username}</a><br><br>Redirecting to your dashboard...`;
-                                
-                                setTimeout(() => {
-                                    window.location.href = 'admin.html';
-                                }, 3000);
-                            }
-                        } catch (err) {
-                            console.error('Error processing signup data:', err);
-                            statusEl.textContent = 'Email confirmed! Welcome to HomeBase! Redirecting to your dashboard...';
-                            setTimeout(() => {
-                                window.location.href = 'admin.html';
-                            }, 1500);
+                            signupData = JSON.parse(pendingData);
+                        } catch (parseError) {
+                            console.warn('Failed to parse pending signup data:', parseError);
                         }
-                    } else {
+                    }
+                    
+                    // If no pending data, create minimal user record from auth data
+                    if (!signupData) {
+                        console.log('No pending signup data, creating minimal user record...');
+                        const username = data.session.user.user_metadata?.username || 
+                                        data.session.user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                        signupData = {
+                            userId: data.session.user.id,
+                            username: username,
+                            email: data.session.user.email,
+                            bio: null,
+                            photoFile: null
+                        };
+                    }
+                    
+                    try {
+                        // Handle photo upload if present
+                        let photoURL = null;
+                        if (signupData.photoFile) {
+                            statusEl.textContent = 'Email confirmed! Uploading profile photo...';
+                            try {
+                                // Convert base64 back to blob for upload
+                                const response = await fetch(signupData.photoFile.data);
+                                const blob = await response.blob();
+                                const file = new File([blob], signupData.photoFile.name, { type: signupData.photoFile.type });
+                                
+                                // Upload to Supabase Storage
+                                const fileExt = file.name.split('.').pop();
+                                const fileName = `${data.session.user.id}/profile.${fileExt}`;
+                                
+                                const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                                    .from('profile-photos')
+                                    .upload(fileName, file, {
+                                        cacheControl: '3600',
+                                        upsert: true
+                                    });
+
+                                if (uploadError) {
+                                    console.warn('Photo upload failed:', uploadError);
+                                } else {
+                                    const { data: urlData } = supabaseClient.storage
+                                        .from('profile-photos')
+                                        .getPublicUrl(fileName);
+                                    photoURL = urlData.publicUrl;
+                                    console.log('Photo uploaded successfully:', photoURL);
+                                }
+                            } catch (photoError) {
+                                console.warn('Photo upload failed:', photoError);
+                            }
+                        }
+                        
+                        statusEl.textContent = 'Email confirmed! Saving your profile...';
+                        
+                        // Save user data to database
+                        const { data: saveData, error: saveError } = await supabaseClient
+                            .from('users')
+                            .upsert({
+                                id: data.session.user.id,
+                                email: signupData.email,
+                                username: signupData.username,
+                                bio: signupData.bio || null,
+                                photo_url: photoURL,
+                                updated_at: new Date().toISOString()
+                            })
+                            .select();
+
+                        if (saveError) {
+                            console.error('Error saving user data:', saveError);
+                            // Don't fail completely - user can still access admin panel
+                            statusEl.textContent = 'Email confirmed! Redirecting to your dashboard...';
+                        } else {
+                            console.log('User data saved successfully:', saveData);
+                            statusEl.innerHTML = `Signup completed successfully! Welcome to HomeBase!<br><br>Your HomeBase link: <a href="${window.location.origin}/HomeBase/profile.html?user=${signupData.username}" target="_blank">${window.location.origin}/HomeBase/profile.html?user=${signupData.username}</a><br><br>Redirecting to your dashboard...`;
+                        }
+                        
+                        localStorage.removeItem('pendingSignupData');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'admin.html';
+                        }, 3000);
+                        
+                    } catch (err) {
+                        console.error('Error processing signup completion:', err);
                         statusEl.textContent = 'Email confirmed! Welcome to HomeBase! Redirecting to your dashboard...';
+                        localStorage.removeItem('pendingSignupData');
                         setTimeout(() => {
                             window.location.href = 'admin.html';
                         }, 1500);

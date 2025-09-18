@@ -330,9 +330,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('Stored signup data for email confirmation:', signupData);
                 
+                // If email is already confirmed (rare case), create user record immediately
                 if (result.user.email_confirmed_at) {
-                    alert('Account created and confirmed! Redirecting to admin...');
-                    window.location.href = 'admin.html';
+                    console.log('Email already confirmed, creating user record immediately...');
+                    try {
+                        // Handle photo upload if present
+                        let photoURL = null;
+                        if (selectedPhotoFile) {
+                            try {
+                                photoURL = await storageFunctions.uploadProfilePhoto(result.user.id, selectedPhotoFile);
+                                console.log('Photo uploaded successfully:', photoURL);
+                            } catch (photoError) {
+                                console.warn('Photo upload failed:', photoError);
+                            }
+                        }
+                        
+                        // Create user record
+                        const userData = await dbFunctions.saveUserData(result.user.id, {
+                            email: email,
+                            username: username,
+                            bio: bio,
+                            photo_url: photoURL
+                        });
+                        
+                        console.log('User record created immediately:', userData);
+                        localStorage.removeItem('pendingSignupData');
+                        alert('Account created and confirmed! Redirecting to admin...');
+                        window.location.href = 'admin.html';
+                    } catch (createError) {
+                        console.error('Error creating user record:', createError);
+                        alert('Account created! Please check your email and click the confirmation link to complete your signup.');
+                    }
                 } else {
                     alert('Account created! Please check your email and click the confirmation link to complete your signup.');
                 }
