@@ -19,9 +19,10 @@
         <h1>Supabase Email Test</h1>
         <p>This will test if Supabase is correctly configured to send emails.</p>
         
-        <input type="email" id="test-email" placeholder="Enter test email" required>
+        <input type="email" id="test-email" placeholder="Try different email (outlook, yahoo, etc.)" required>
         <button onclick="testEmailSignup()">Test Email Signup</button>
         <button onclick="checkAuthSettings()">Check Auth Settings</button>
+        <button onclick="testDifferentEmails()">Test Multiple Emails</button>
         
         <div id="logs"></div>
     </div>
@@ -95,6 +96,40 @@
                 }
             } catch (err) {
                 log(`Connection failed: ${err.message}`, 'error');
+            }
+        }
+
+        async function testDifferentEmails() {
+            const testEmails = [
+                'test@outlook.com',
+                'test@yahoo.com', 
+                'test@hotmail.com'
+            ];
+
+            log('Testing multiple email providers...');
+            
+            for (const email of testEmails) {
+                log(`Testing with ${email}...`);
+                try {
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: 'TestPassword123!',
+                        options: {
+                            emailRedirectTo: 'https://lourensstrauss99.github.io/HomeBase/confirm.html'
+                        }
+                    });
+
+                    if (error) {
+                        log(`${email}: Error - ${error.message}`, 'error');
+                    } else {
+                        log(`${email}: Confirmation sent - ${data.user?.confirmation_sent_at ? 'Yes' : 'No'}`, 'success');
+                    }
+                } catch (err) {
+                    log(`${email}: Failed - ${err.message}`, 'error');
+                }
+                
+                // Wait between requests
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
         }
 
