@@ -16,16 +16,22 @@ const authFunctions = {
             console.log('Attempting Supabase signup...', { email, userData });
             console.log('Using emailRedirectTo:', 'https://lourensstrauss99.github.io/HomeBase/confirm.html');
             
-            const { data, error } = await supabaseClient.auth.signUp({
+            const signupOptions = {
                 email: email,
                 password: password,
                 options: {
                     data: userData,
                     emailRedirectTo: 'https://lourensstrauss99.github.io/HomeBase/confirm.html'
                 }
-            });
+            };
+            
+            console.log('Full signup options:', signupOptions);
+            
+            const { data, error } = await supabaseClient.auth.signUp(signupOptions);
             
             console.log('Supabase signup response:', { data, error });
+            console.log('User needs email confirmation:', !data.user?.email_confirmed_at);
+            console.log('Session exists:', !!data.session);
             
             if (error) {
                 console.error('Supabase signup error:', error);
@@ -284,8 +290,17 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('User object:', result.user);
             console.log('User email confirmed:', result.user?.email_confirmed_at);
             console.log('User confirmation sent at:', result.user?.confirmation_sent_at);
+            console.log('User identities:', result.user?.identities);
+            console.log('Session:', result.session);
             
             if (result.user) {
+                // Check if email confirmation is required
+                if (result.user.email_confirmed_at) {
+                    console.log('Email already confirmed, user can proceed directly');
+                } else {
+                    console.log('Email confirmation required, email should have been sent');
+                    console.log('Check your Supabase Auth settings and email provider configuration');
+                }
                 // Store signup data for after email confirmation
                 const signupData = {
                     userId: result.user.id,

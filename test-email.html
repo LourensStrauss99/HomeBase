@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Email Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        input, button { margin: 10px 0; padding: 10px; width: 200px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        .log { background: #f8f9fa; padding: 15px; margin: 15px 0; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; }
+        .success { border-left-color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Supabase Email Test</h1>
+        <p>This will test if Supabase is correctly configured to send emails.</p>
+        
+        <input type="email" id="test-email" placeholder="Enter test email" required>
+        <button onclick="testEmailSignup()">Test Email Signup</button>
+        <button onclick="checkAuthSettings()">Check Auth Settings</button>
+        
+        <div id="logs"></div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const logEl = document.createElement('div');
+            logEl.className = `log ${type}`;
+            logEl.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            logs.appendChild(logEl);
+            console.log(message);
+        }
+
+        async function testEmailSignup() {
+            const email = document.getElementById('test-email').value;
+            if (!email) {
+                log('Please enter an email address', 'error');
+                return;
+            }
+
+            log('Testing email signup with Supabase...');
+            
+            try {
+                const { data, error } = await supabaseClient.auth.signUp({
+                    email: email,
+                    password: 'TestPassword123!',
+                    options: {
+                        emailRedirectTo: 'https://lourensstrauss99.github.io/HomeBase/confirm.html'
+                    }
+                });
+
+                if (error) {
+                    log(`Signup error: ${error.message}`, 'error');
+                    log(`Error details: ${JSON.stringify(error, null, 2)}`, 'error');
+                } else {
+                    log('Signup successful!', 'success');
+                    log(`User ID: ${data.user?.id}`, 'success');
+                    log(`Email confirmed: ${data.user?.email_confirmed_at ? 'Yes' : 'No'}`, 'info');
+                    log(`Confirmation sent: ${data.user?.confirmation_sent_at ? 'Yes' : 'No'}`, 'info');
+                    log(`Session exists: ${data.session ? 'Yes' : 'No'}`, 'info');
+                    
+                    if (!data.user?.email_confirmed_at) {
+                        log('Check your email for confirmation link!', 'success');
+                        log('Also check spam/junk folder', 'info');
+                    }
+                }
+            } catch (err) {
+                log(`Unexpected error: ${err.message}`, 'error');
+            }
+        }
+
+        async function checkAuthSettings() {
+            log('Checking Supabase configuration...');
+            log(`Supabase URL: ${supabaseUrl}`, 'info');
+            log(`Using redirect URL: https://lourensstrauss99.github.io/HomeBase/confirm.html`, 'info');
+            
+            // Test connection
+            try {
+                const { data, error } = await supabaseClient.auth.getSession();
+                if (error) {
+                    log(`Connection error: ${error.message}`, 'error');
+                } else {
+                    log('Successfully connected to Supabase!', 'success');
+                }
+            } catch (err) {
+                log(`Connection failed: ${err.message}`, 'error');
+            }
+        }
+
+        // Auto-check connection on load
+        window.addEventListener('DOMContentLoaded', checkAuthSettings);
+    </script>
+</body>
+</html>
