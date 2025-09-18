@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug User Profile</title>
+</head>
+<body>
+    <h1>User Profile Debug</h1>
+    <button onclick="checkUser()">Check User in Database</button>
+    <button onclick="checkLinks()">Check User Links</button>
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://kiaqpvwcifgtiliwkxny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU'
+        );
+
+        function log(message) {
+            document.getElementById('results').innerHTML += '<p>' + JSON.stringify(message, null, 2) + '</p>';
+        }
+
+        async function checkUser() {
+            try {
+                // Get current user from auth
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                log('Auth User: ' + (user ? user.id : 'Not logged in'));
+                
+                if (user) {
+                    // Check if user exists in users table
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('*')
+                        .eq('id', user.id);
+                    
+                    if (error) {
+                        log('Error: ' + error.message);
+                    } else {
+                        log('Users table data: ' + JSON.stringify(data, null, 2));
+                    }
+                }
+            } catch (err) {
+                log('Error: ' + err.message);
+            }
+        }
+
+        async function checkLinks() {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                
+                if (user) {
+                    const { data, error } = await supabaseClient
+                        .from('user_links')
+                        .select('*')
+                        .eq('user_id', user.id);
+                    
+                    if (error) {
+                        log('Links Error: ' + error.message);
+                    } else {
+                        log('User Links: ' + JSON.stringify(data, null, 2));
+                    }
+                }
+            } catch (err) {
+                log('Error: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

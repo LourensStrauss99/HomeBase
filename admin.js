@@ -87,6 +87,57 @@ const dbFunctions = {
             console.error('Check username error:', error);
             return false;
         }
+    },
+
+    async saveUserLink(userId, linkData) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('user_links')
+                .insert({
+                    user_id: userId,
+                    name: linkData.name,
+                    url: linkData.url,
+                    icon: linkData.icon,
+                    created_at: new Date().toISOString()
+                })
+                .select();
+
+            if (error) throw error;
+            return data[0];
+        } catch (error) {
+            console.error('Save user link error:', error);
+            throw error;
+        }
+    },
+
+    async getUserLinks(userId) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('user_links')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        } catch (error) {
+            console.error('Get user links error:', error);
+            return [];
+        }
+    },
+
+    async deleteUserLink(linkId) {
+        try {
+            const { error } = await supabaseClient
+                .from('user_links')
+                .delete()
+                .eq('id', linkId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error('Delete user link error:', error);
+            throw error;
+        }
     }
 };
 
@@ -283,17 +334,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = 'login.html';
             }, 100);
             return;
+        }
         
         if (session?.user) {
             // User is authenticated, continue with admin dashboard
+            currentUserId = session.user.id;
+            
             // Store user info for compatibility with existing code
             localStorage.setItem('user', JSON.stringify({
                 uid: session.user.id,
                 email: session.user.email
             }));
             
-            // Load user profile data
+            // Load user profile data and links
             loadUserProfile(session.user.id);
+            loadUserLinks(session.user.id);
         }
     });
 
@@ -548,8 +603,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const subscription = JSON.parse(localStorage.getItem('subscription')) || { plan: 'free', status: 'active' };
     displaySubscriptionInfo(subscription);
 
-    // Load links from localStorage or use defaults
-    let links = JSON.parse(localStorage.getItem('links')) || defaultLinks;
+    // Load links from Supabase database
+    let links = [];
+    let currentUserId = null;
+
+    // Function to load user links from database
+    async function loadUserLinks(userId) {
+        try {
+            const userLinks = await dbFunctions.getUserLinks(userId);
+            links = userLinks.map(link => ({
+                id: link.id,
+                name: link.name,
+                url: link.url,
+                icon: link.icon,
+                count: link.click_count || 0
+            }));
+            renderLinks();
+        } catch (error) {
+            console.error('Error loading user links:', error);
+            links = [];
+            renderLinks();
+        }
+    }
 
     // Function to render links
     function renderLinks() {
@@ -579,29 +654,66 @@ document.addEventListener('DOMContentLoaded', () => {
     // Attach events to edit/delete buttons
     function attachLinkEvents() {
         document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 const index = e.target.dataset.index;
                 const newUrl = prompt('New URL:', links[index].url);
-                if (newUrl) {
-                    // Auto-detect new name and icon based on URL
-                    const newName = detectPlatformName(newUrl);
-                    const newIcon = detectSocialIcon(newUrl);
-                    
-                    links[index].name = newName;
-                    links[index].url = newUrl;
-                    links[index].icon = newIcon;
-                    localStorage.setItem('links', JSON.stringify(links));
-                    renderLinks();
+                if (newUrl && currentUserId) {
+                    try {
+                        // Auto-detect new name and icon based on URL
+                        const newName = detectPlatformName(newUrl);
+                        const newIcon = detectSocialIcon(newUrl);
+                        
+                        // Update in Supabase
+                        btn.textContent = 'Updating...';
+                        btn.disabled = true;
+                        
+                        await dbFunctions.saveUserLink(currentUserId, {
+                            id: links[index].id,
+                            name: newName,
+                            url: newUrl,
+                            icon: newIcon
+                        });
+                        
+                        // Update local array
+                        links[index].name = newName;
+                        links[index].url = newUrl;
+                        links[index].icon = newIcon;
+                        
+                        renderLinks();
+                        alert(`Link updated successfully!`);
+                    } catch (error) {
+                        console.error('Error updating link:', error);
+                        alert('Error updating link. Please try again.');
+                        btn.textContent = 'Edit';
+                        btn.disabled = false;
+                    }
                 }
             });
         });
         document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 const index = e.target.dataset.index;
                 if (confirm('Delete this link?')) {
-                    links.splice(index, 1);
-                    localStorage.setItem('links', JSON.stringify(links));
-                    renderLinks();
+                    try {
+                        const linkId = links[index].id;
+                        
+                        // Delete from Supabase
+                        btn.textContent = 'Deleting...';
+                        btn.disabled = true;
+                        
+                        await dbFunctions.deleteUserLink(linkId);
+                        
+                        // Remove from local array
+                        links.splice(index, 1);
+                        renderLinks();
+                        
+                        alert('Link deleted successfully!');
+                    } catch (error) {
+                        console.error('Error deleting link:', error);
+                        alert('Error deleting link. Please try again.');
+                        btn.textContent = 'Delete';
+                        btn.disabled = false;
+                    }
                 }
             });
         });
@@ -611,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addLinkBtn = document.getElementById('add-link-btn');
     const linkUrlInput = document.getElementById('link-url');
 
-    addLinkBtn.addEventListener('click', () => {
+    addLinkBtn.addEventListener('click', async () => {
         const url = linkUrlInput.value.trim();
         
         // Check subscription limits
@@ -621,18 +733,43 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        if (url) {
-            // Auto-detect name and icon for the URL
-            const name = detectPlatformName(url);
-            const iconSlug = detectSocialIcon(url);
-            
-            links.push({ name, url, count: 0, icon: iconSlug });
-            localStorage.setItem('links', JSON.stringify(links));
-            renderLinks();
-            linkUrlInput.value = '';
-            
-            // Show detected platform feedback
-            alert(`${name} link added successfully!`);
+        if (url && currentUserId) {
+            try {
+                // Auto-detect name and icon for the URL
+                const name = detectPlatformName(url);
+                const iconSlug = detectSocialIcon(url);
+                
+                // Save to Supabase
+                addLinkBtn.textContent = 'Adding...';
+                addLinkBtn.disabled = true;
+                
+                const newLink = await dbFunctions.saveUserLink(currentUserId, {
+                    name: name,
+                    url: url,
+                    icon: iconSlug
+                });
+                
+                // Add to local array and re-render
+                links.push({
+                    id: newLink.id,
+                    name: name,
+                    url: url,
+                    icon: iconSlug,
+                    count: 0
+                });
+                
+                renderLinks();
+                linkUrlInput.value = '';
+                
+                // Show detected platform feedback
+                alert(`${name} link added successfully!`);
+            } catch (error) {
+                console.error('Error adding link:', error);
+                alert('Error adding link. Please try again.');
+            } finally {
+                addLinkBtn.textContent = 'Add Link';
+                addLinkBtn.disabled = false;
+            }
         } else {
             alert('Please enter a URL.');
         }
