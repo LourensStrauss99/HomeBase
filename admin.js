@@ -398,8 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle case where user exists in Auth but not in users table
     async function handleMissingUserProfile(userId) {
         try {
+            console.log('handleMissingUserProfile called for userId:', userId);
             // Get user data from Supabase Auth
             const { data: { user } } = await supabaseClient.auth.getUser();
+            console.log('Auth user data:', user);
             
             if (user) {
                 console.log('Creating user profile from auth data:', user);
@@ -416,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     photo_url: null
                 });
                 
-                console.log('User profile created:', userData);
+                console.log('User profile created successfully:', userData);
                 
                 // Update UI with new data
                 const adminUsername = document.getElementById('admin-username');
