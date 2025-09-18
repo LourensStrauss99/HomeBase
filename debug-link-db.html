@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Link Database</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Debug Link Database</h1>
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message) {
+            output.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+
+        async function testDatabase() {
+            try {
+                // Initialize Supabase with your actual credentials
+                const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+                const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+                log('Testing database connection...');
+
+                // Test 1: Check if user_links table exists
+                log('Test 1: Checking user_links table...');
+                const { data: links, error: linksError } = await supabaseClient
+                    .from('user_links')
+                    .select('*')
+                    .limit(1);
+
+                if (linksError) {
+                    log('ERROR: user_links table issue: ' + JSON.stringify(linksError));
+                } else {
+                    log('SUCCESS: user_links table accessible');
+                }
+
+                // Test 2: Check authentication
+                log('Test 2: Checking authentication...');
+                const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+
+                if (authError || !user) {
+                    log('ERROR: Not authenticated: ' + JSON.stringify(authError));
+                } else {
+                    log('SUCCESS: Authenticated as: ' + user.email);
+
+                    // Test 3: Try to insert a test link
+                    log('Test 3: Testing link insertion...');
+                    const testLink = {
+                        user_id: user.id,
+                        name: 'Test Link',
+                        url: 'https://example.com',
+                        icon: 'test'
+                    };
+
+                    const { data: insertData, error: insertError } = await supabaseClient
+                        .from('user_links')
+                        .insert(testLink)
+                        .select();
+
+                    if (insertError) {
+                        log('ERROR: Insert failed: ' + JSON.stringify(insertError));
+                    } else {
+                        log('SUCCESS: Link inserted: ' + JSON.stringify(insertData));
+
+                        // Clean up test link
+                        if (insertData && insertData[0]) {
+                            await supabaseClient
+                                .from('user_links')
+                                .delete()
+                                .eq('id', insertData[0].id);
+                            log('Test link cleaned up');
+                        }
+                    }
+                }
+
+            } catch (error) {
+                log('GENERAL ERROR: ' + error.message);
+            }
+        }
+
+        // Run test when page loads
+        testDatabase();
+    </script>
+</body>
+</html>

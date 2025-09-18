@@ -726,6 +726,9 @@ document.addEventListener('DOMContentLoaded', () => {
     addLinkBtn.addEventListener('click', async () => {
         const url = linkUrlInput.value.trim();
         
+        console.log('Add link clicked, currentUserId:', currentUserId);
+        console.log('URL entered:', url);
+        
         // Check subscription limits
         const maxLinks = getMaxLinks(subscription.plan);
         if (links.length >= maxLinks) {
@@ -749,6 +752,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon: iconSlug
                 });
                 
+                console.log('Link saved successfully:', newLink);
+                
                 // Add to local array and re-render
                 links.push({
                     id: newLink.id,
@@ -765,6 +770,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`${name} link added successfully!`);
             } catch (error) {
                 console.error('Error adding link:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
                 alert('Error adding link. Please try again.');
             } finally {
                 addLinkBtn.textContent = 'Add Link';
