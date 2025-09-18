@@ -15,13 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('theme', selectedTheme);
     });
     
-    // Check if user is already authenticated
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // User is signed in, redirect to their profile
-            window.location.href = 'profile.html';
-        }
-    });
+    // Note: Authentication check removed - users can navigate directly to admin/profile pages
     
     // Add smooth scrolling to auth links
     document.querySelectorAll('a[href*="#"]').forEach(anchor => {

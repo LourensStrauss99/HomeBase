@@ -762,18 +762,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     await dbFunctions.saveUserData(user.id, userData);
                     console.log('User data initialized');
                     
-                    // Initialize usernames collection structure (create a dummy entry and remove it)
-                    await db.collection('usernames').doc('_init').set({
-                        userId: 'init',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    await db.collection('usernames').doc('_init').delete();
-                    console.log('Usernames collection initialized');
+                    // Database initialization not needed for Supabase - tables already exist
+                    console.log('Database already initialized with Supabase');
                     
                     alert('Database collections initialized successfully! You can now use the signup form.');
                     
                     // Reload user profile
-                    loadUserProfile(user.uid);
+                    loadUserProfile(user.id);
                     
                 } catch (error) {
                     alert('Error initializing database: ' + error.message);
@@ -810,20 +805,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                             
                             // Check if username exists
-                            const exists = await FirebaseUtils.checkUsernameExists(cleanUsername);
+                            const exists = await dbFunctions.checkUsernameExists(cleanUsername);
                             if (exists) {
                                 alert('Username already taken!');
                                 return;
                             }
 
                             // Update user data with username
-                            const updateResult = await FirebaseUtils.saveUserData(user.uid, {
+                            const updateResult = await dbFunctions.saveUserData(user.id, {
                                 username: cleanUsername
                             });
 
-                            if (updateResult.success) {
-                                // Save username mapping
-                                await FirebaseUtils.saveUsernameMapping(cleanUsername, user.uid);
+                            if (updateResult) {
                                 alert('Username updated successfully!');
                             } else {
                                 alert('Failed to update username: ' + updateResult.error);
@@ -835,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     // Reload profile to show changes
-                    loadUserProfile(user.uid);
+                    loadUserProfile(user.id);
                     
                 } catch (error) {
                     alert('Error fixing user data: ' + error.message);
