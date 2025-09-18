@@ -1,10 +1,59 @@
-// Login script with Firebase
+// Login script with Supabase - UMD version
+// Initialize Supabase client using the global variable
+const { createClient } = supabase;
+
+const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+console.log('Supabase client initialized:', supabaseClient);
+
+// Supabase functions
+const authFunctions = {
+    async signIn(email, password) {
+        try {
+            console.log('Attempting Supabase login...', { email });
+            
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                console.error('Supabase login error:', error);
+                throw error;
+            }
+            
+            console.log('Supabase login success:', data);
+            return { user: data.user, session: data.session };
+        } catch (error) {
+            console.error('Login error:', error);
+            throw error;
+        }
+    },
+
+    async getCurrentUser() {
+        try {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            return user;
+        } catch (error) {
+            console.error('Get current user error:', error);
+            return null;
+        }
+    },
+
+    onAuthStateChange(callback) {
+        return supabaseClient.auth.onAuthStateChange(callback);
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     let isRedirecting = false;
     
     // Check if user is already logged in
-    FirebaseUtils.onAuthStateChanged((user) => {
-        if (user && !isRedirecting) {
+    authFunctions.onAuthStateChange((event, session) => {
+        if (session && !isRedirecting) {
             // User is signed in, redirect to admin
             isRedirecting = true;
             setTimeout(() => {
@@ -12,21 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 100);
         }
     });
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme') || 'theme-light';
-    document.body.className = savedTheme; // Replace all classes with saved theme
-
-    // Theme change (if theme selector exists)
-    const themeSelect = document.getElementById('theme-select');
-    if (themeSelect) {
-        themeSelect.value = savedTheme;
-        themeSelect.addEventListener('change', (e) => {
-            const newTheme = e.target.value;
-            document.body.className = newTheme;
-            localStorage.setItem('theme', newTheme);
-        });
-    }
 
     // Password visibility toggle
     const passwordToggle = document.querySelector('.password-toggle');
@@ -60,13 +94,13 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            const result = await FirebaseUtils.signIn(email, password);
+            const result = await authFunctions.signIn(email, password);
             
-            if (result.success) {
+            if (result.user) {
                 alert('Logged in successfully!');
                 window.location.href = 'admin.html';
             } else {
-                alert('Login failed: ' + result.error);
+                alert('Login failed: No user returned');
             }
         } catch (error) {
             alert('Login error: ' + error.message);
@@ -76,4 +110,23 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = false;
         }
     });
+
+    // Theme toggle functionality
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        const body = document.body;
+        body.classList.toggle('dark-theme');
+        body.classList.toggle('light-theme');
+        
+        // Save theme preference
+        const currentTheme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
+    });
+
+    // Load theme preference
+    const theme = localStorage.getItem('theme');
+    if (theme) {
+        document.body.className = theme + '-theme';
+    } else {
+        document.body.className = 'light-theme';
+    }
 });
