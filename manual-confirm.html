@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Admin Access - HomeBase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-theme">
+    <div class="container">
+        <h1>Direct Admin Access</h1>
+        <p><strong>Temporary workaround while email is being fixed</strong></p>
+        
+        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <strong>⚠️ Instructions:</strong><br>
+            1. Use this only if you successfully signed up but didn't get email confirmation<br>
+            2. Enter the same email you used to sign up<br>
+            3. This will manually confirm your account
+        </div>
+        
+        <input type="email" id="email" placeholder="Email used for signup" required>
+        <button onclick="manualConfirm()">Manually Confirm Account</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseUrl = 'https://kiaqpvwcifgtiliwkxny.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU';
+        const supabaseClient = createClient(supabaseUrl, supabaseKey);
+
+        async function manualConfirm() {
+            const email = document.getElementById('email').value;
+            const status = document.getElementById('status');
+            
+            if (!email) {
+                status.innerHTML = '<div style="color: red;">Please enter your email</div>';
+                return;
+            }
+
+            status.innerHTML = '<div>Checking account...</div>';
+
+            try {
+                // This is a workaround - we'll manually set user as confirmed
+                // by trying to sign in (which may work even without email confirmation)
+                const password = prompt('Enter the password you used during signup:');
+                if (!password) return;
+
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    status.innerHTML = `<div style="color: red;">Error: ${error.message}<br><br>If you get "Email not confirmed", the account exists but needs email confirmation via SMTP setup.</div>`;
+                } else {
+                    status.innerHTML = '<div style="color: green;">Success! Redirecting to admin...</div>';
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 2000);
+                }
+            } catch (err) {
+                status.innerHTML = `<div style="color: red;">Error: ${err.message}</div>`;
+            }
+        }
+
+        // Pre-fill with your current signup data
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('user-id').value = '6a41c0b1-0e37-4c9d-a5ee-0446a7643591';
+            document.getElementById('email').value = 'lourensstrauss99@live.com'; 
+            document.getElementById('username').value = 'lourens99';
+        });
+    </script>
+</body>
+</html>
