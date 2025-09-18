@@ -77,6 +77,43 @@
                         try {
                             const signupData = JSON.parse(pendingData);
                             
+                            // Handle photo upload if present
+                            let photoURL = null;
+                            if (signupData.photoFile) {
+                                statusEl.textContent = 'Email confirmed! Uploading profile photo...';
+                                try {
+                                    // Convert base64 back to blob for upload
+                                    const response = await fetch(signupData.photoFile.data);
+                                    const blob = await response.blob();
+                                    const file = new File([blob], signupData.photoFile.name, { type: signupData.photoFile.type });
+                                    
+                                    // Upload to Supabase Storage
+                                    const fileExt = file.name.split('.').pop();
+                                    const fileName = `${data.session.user.id}/profile.${fileExt}`;
+                                    
+                                    const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                                        .from('profile-photos')
+                                        .upload(fileName, file, {
+                                            cacheControl: '3600',
+                                            upsert: true
+                                        });
+
+                                    if (uploadError) {
+                                        console.warn('Photo upload failed:', uploadError);
+                                    } else {
+                                        const { data: urlData } = supabaseClient.storage
+                                            .from('profile-photos')
+                                            .getPublicUrl(fileName);
+                                        photoURL = urlData.publicUrl;
+                                        console.log('Photo uploaded successfully:', photoURL);
+                                    }
+                                } catch (photoError) {
+                                    console.warn('Photo upload failed:', photoError);
+                                }
+                            }
+                            
+                            statusEl.textContent = 'Email confirmed! Saving your profile...';
+                            
                             // Save user data to database
                             const { data: saveData, error: saveError } = await supabaseClient
                                 .from('users')
@@ -85,7 +122,7 @@
                                     email: signupData.email,
                                     username: signupData.username,
                                     bio: signupData.bio || null,
-                                    photo_url: null,
+                                    photo_url: photoURL,
                                     updated_at: new Date().toISOString()
                                 })
                                 .select();
@@ -99,11 +136,11 @@
                             } else {
                                 console.log('User data saved:', saveData);
                                 localStorage.removeItem('pendingSignupData');
-                                statusEl.textContent = 'Signup completed successfully! Welcome to HomeBase! Redirecting to your dashboard...';
+                                statusEl.innerHTML = `Signup completed successfully! Welcome to HomeBase!<br><br>Your HomeBase link: <a href="${window.location.origin}/HomeBase/profile.html?user=${signupData.username}" target="_blank">${window.location.origin}/HomeBase/profile.html?user=${signupData.username}</a><br><br>Redirecting to your dashboard...`;
                                 
                                 setTimeout(() => {
                                     window.location.href = 'admin.html';
-                                }, 1500);
+                                }, 3000);
                             }
                         } catch (err) {
                             console.error('Error processing signup data:', err);

@@ -321,65 +321,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     alert('Account created! Please check your email and click the confirmation link to complete your signup.');
                 }
-                submitBtn.textContent = 'Sign Up';
-                submitBtn.disabled = false;
                 
-                // Listen for auth state change to complete signup
-                const { data: authListener } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                    if (event === 'SIGNED_IN' && session) {
-                        const pendingData = localStorage.getItem('pendingSignupData');
-                        if (pendingData) {
-                            try {
-                                const data = JSON.parse(pendingData);
-                                
-                                // Upload profile photo if selected
-                                let photoURL = null;
-                                if (data.photoFile) {
-                                    submitBtn.textContent = 'Uploading Photo...';
-                                    try {
-                                        // Convert base64 back to blob
-                                        const response = await fetch(data.photoFile.data);
-                                        const blob = await response.blob();
-                                        const file = new File([blob], data.photoFile.name, { type: data.photoFile.type });
-                                        
-                                        photoURL = await storageFunctions.uploadProfilePhoto(data.userId, file);
-                                        console.log('Photo uploaded successfully:', photoURL);
-                                    } catch (photoError) {
-                                        console.warn('Photo upload failed:', photoError);
-                                    }
-                                }
-                                
-                                // Save user data to users table
-                                const userData = {
-                                    email: data.email,
-                                    username: data.username,
-                                    bio: data.bio,
-                                    photo_url: photoURL
-                                };
-                                
-                                console.log('Saving user data after email confirmation:', userData);
-                                const savedUser = await dbFunctions.saveUserData(data.userId, userData);
-                                console.log('User data saved:', savedUser);
-                                
-                                // Clear pending data
-                                localStorage.removeItem('pendingSignupData');
-                                
-                                // Redirect to admin
-                                alert('Signup completed! Your HomeBase link is: ' + window.location.origin + '/HomeBase/profile.html?user=' + data.username);
-                                window.location.href = 'admin.html';
-                                
-                            } catch (error) {
-                                console.error('Error completing signup after confirmation:', error);
-                                if (error.message && error.message.includes('username')) {
-                                    alert('This username is already taken. Please choose a different one and sign up again.');
-                                } else {
-                                    alert('There was an error completing your signup. Please try logging in and updating your profile in the admin panel.');
-                                }
-                            }
-                        }
-                        authListener.unsubscribe();
-                    }
-                });
+                // Note: Email confirmation will be handled by confirm.html page
+                // The auth state listener has been removed to prevent conflicts
                 
             } else {
                 throw new Error('Failed to create account');
