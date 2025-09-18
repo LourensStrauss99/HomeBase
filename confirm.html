@@ -92,28 +92,31 @@
 
                             if (saveError) {
                                 console.error('Error saving user data:', saveError);
-                                statusEl.textContent = 'Email confirmed but error saving profile. Please update your profile in the admin panel.';
-                            } else {
-                                console.log('User data saved:', saveData);
-                                localStorage.removeItem('pendingSignupData');
-                                statusEl.textContent = 'Signup completed successfully! Redirecting to your admin panel...';
-                                
+                                statusEl.textContent = 'Email confirmed but error saving profile. Redirecting to admin panel...';
                                 setTimeout(() => {
                                     window.location.href = 'admin.html';
                                 }, 2000);
+                            } else {
+                                console.log('User data saved:', saveData);
+                                localStorage.removeItem('pendingSignupData');
+                                statusEl.textContent = 'Signup completed successfully! Welcome to HomeBase! Redirecting to your dashboard...';
+                                
+                                setTimeout(() => {
+                                    window.location.href = 'admin.html';
+                                }, 1500);
                             }
                         } catch (err) {
                             console.error('Error processing signup data:', err);
-                            statusEl.textContent = 'Email confirmed! Please complete your profile in the admin panel.';
+                            statusEl.textContent = 'Email confirmed! Welcome to HomeBase! Redirecting to your dashboard...';
                             setTimeout(() => {
                                 window.location.href = 'admin.html';
-                            }, 2000);
+                            }, 1500);
                         }
                     } else {
-                        statusEl.textContent = 'Email confirmed! Redirecting to admin panel...';
+                        statusEl.textContent = 'Email confirmed! Welcome to HomeBase! Redirecting to your dashboard...';
                         setTimeout(() => {
                             window.location.href = 'admin.html';
-                        }, 2000);
+                        }, 1500);
                     }
                 } else {
                     statusEl.textContent = 'Please check your email and click the confirmation link.';
