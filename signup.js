@@ -19,7 +19,8 @@ const authFunctions = {
                 email: email,
                 password: password,
                 options: {
-                    data: userData
+                    data: userData,
+                    emailRedirectTo: 'https://lourensstrauss99.github.io/HomeBase/confirm.html'
                 }
             });
             
