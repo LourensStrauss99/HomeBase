@@ -14,6 +14,7 @@ const authFunctions = {
     async signUp(email, password, userData = {}) {
         try {
             console.log('Attempting Supabase signup...', { email, userData });
+            console.log('Using emailRedirectTo:', 'https://lourensstrauss99.github.io/HomeBase/confirm.html');
             
             const { data, error } = await supabaseClient.auth.signUp({
                 email: email,
