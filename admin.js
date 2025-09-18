@@ -331,6 +331,65 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error loading user profile:', error);
+            
+            // If user not found in users table, create basic profile from auth data
+            if (error.message.includes('PGRST116') || error.message.includes('No rows')) {
+                console.log('User not found in users table, creating basic profile...');
+                await handleMissingUserProfile(userId);
+            }
+        }
+    }
+
+    // Handle case where user exists in Auth but not in users table
+    async function handleMissingUserProfile(userId) {
+        try {
+            // Get user data from Supabase Auth
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            if (user) {
+                console.log('Creating user profile from auth data:', user);
+                
+                // Extract username from user metadata or email
+                const username = user.user_metadata?.username || 
+                                user.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+                
+                // Create basic user record
+                const userData = await dbFunctions.saveUserData(userId, {
+                    email: user.email,
+                    username: username,
+                    bio: null,
+                    photo_url: null
+                });
+                
+                console.log('User profile created:', userData);
+                
+                // Update UI with new data
+                const adminUsername = document.getElementById('admin-username');
+                if (adminUsername) {
+                    adminUsername.textContent = username;
+                }
+                
+                const changePhotoBtn = document.getElementById('change-photo-btn');
+                if (changePhotoBtn) {
+                    changePhotoBtn.style.display = 'block';
+                }
+                
+                // Show success message
+                const statusEl = document.createElement('div');
+                statusEl.style.cssText = 'background: #d4edda; color: #155724; padding: 10px; margin: 10px 0; border-radius: 5px;';
+                statusEl.textContent = `Welcome! Your profile has been set up with username: ${username}`;
+                document.querySelector('.container').insertBefore(statusEl, document.querySelector('.container').firstChild);
+                
+                setTimeout(() => statusEl.remove(), 5000);
+            }
+        } catch (error) {
+            console.error('Error creating missing user profile:', error);
+            
+            // Show error message to user
+            const errorEl = document.createElement('div');
+            errorEl.style.cssText = 'background: #f8d7da; color: #721c24; padding: 10px; margin: 10px 0; border-radius: 5px;';
+            errorEl.textContent = 'Unable to load profile. Please try refreshing the page.';
+            document.querySelector('.container').insertBefore(errorEl, document.querySelector('.container').firstChild);
         }
     }
 
