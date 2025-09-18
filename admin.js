@@ -380,9 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 email: session.user.email
             }));
             
-            // Load user profile data and links
+            // Load user profile data (this will also load links)
             loadUserProfile(session.user.id);
-            loadUserLinks(session.user.id);
         }
     });
 
@@ -403,16 +402,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const profilePhotoContainer = document.getElementById('profile-photo-container');
             const adminProfilePhoto = document.getElementById('admin-profile-photo');
             const changePhotoBtn = document.getElementById('change-photo-btn');
+            
+            console.log('Photo elements found:', {
+                profilePhotoContainer: !!profilePhotoContainer,
+                adminProfilePhoto: !!adminProfilePhoto,
+                changePhotoBtn: !!changePhotoBtn,
+                photo_url: userData.photo_url
+            });
                 
             if (userData.photo_url && adminProfilePhoto) {
+                console.log('Setting profile photo src to:', userData.photo_url);
                 adminProfilePhoto.src = userData.photo_url;
                 if (profilePhotoContainer) {
                     profilePhotoContainer.style.display = 'block';
                 }
+            } else {
+                console.log('No photo URL or photo element missing');
             }
             
+            // Always show the change photo button
             if (changePhotoBtn) {
                 changePhotoBtn.style.display = 'block';
+                console.log('Change photo button made visible');
+            } else {
+                console.log('Change photo button not found');
             }
             
             // Update bio
@@ -808,27 +821,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (homebaseUrlInput && copyLinkBtn) {
         // Smart URL generation for different deployment environments
         async function generateHomeBaseUrl() {
-            const currentUrl = window.location.origin;
-            const currentPath = window.location.pathname;
-            
-            // Get current user's username
-            const user = await authFunctions.getCurrentUser();
-            if (user) {
-                const userData = await dbFunctions.getUserData(user.id);
-                if (userData && userData.username) {
-                    const username = userData.username;
-                    
-                    // Check if we're on GitHub Pages
-                    if (currentUrl.includes('github.io')) {
-                        // GitHub Pages deployment
-                        if (currentPath.includes('/HomeBase/')) {
-                            // We're in the repository subdirectory
-                            return `${currentUrl}/HomeBase/profile.html?user=${username}`;
-                        } else {
-                            // We're at the root (custom domain or root deployment)
-                            return `${currentUrl}/profile.html?user=${username}`;
+            try {
+                const currentUrl = window.location.origin;
+                const currentPath = window.location.pathname;
+                
+                console.log('Generating HomeBase URL with:', { currentUrl, currentPath });
+                
+                // Get current user's username
+                const user = await authFunctions.getCurrentUser();
+                if (user) {
+                    const userData = await dbFunctions.getUserData(user.id);
+                    if (userData && userData.username) {
+                        const username = userData.username;
+                        console.log('Username found:', username);
+                        
+                        // Check if we're on GitHub Pages
+                        if (currentUrl.includes('github.io')) {
+                            // GitHub Pages deployment
+                            if (currentPath.includes('/HomeBase/')) {
+                                // We're in the repository subdirectory
+                                return `${currentUrl}/HomeBase/profile.html?user=${username}`;
+                            } else {
+                                // We're at the root (custom domain or root deployment)
+                                return `${currentUrl}/profile.html?user=${username}`;
+                            }
                         }
-                    }
                     
                     // Localhost or custom domain
                     if (currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1')) {
@@ -843,7 +860,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Fallback if no user data
             return `${currentUrl}/profile.html`;
+        } catch (error) {
+            console.error('Error in generateHomeBaseUrl:', error);
+            return `${window.location.origin}/profile.html`;
         }
+    }
         
         // Initialize URL (async)
         generateHomeBaseUrl().then(homebaseUrl => {
