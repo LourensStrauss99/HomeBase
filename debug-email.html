@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Debug Test</title>
+</head>
+<body>
+    <h1>Email Delivery Debug</h1>
+    <p>Let's check if this is an email template or delivery issue.</p>
+    
+    <button onclick="checkRecentUser()">Check Recent Signup</button>
+    <button onclick="resendConfirmation()">Resend Confirmation</button>
+    
+    <div id="results"></div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(
+            'https://kiaqpvwcifgtiliwkxny.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYXFwdndjaWZndGlsaXdreG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwOTc0OTQsImV4cCI6MjA3MzY3MzQ5NH0.wjy54c99IFy3h-XSONf3yaxeWZlI2Hfu6hvVut6dZTU'
+        );
+
+        function log(message) {
+            document.getElementById('results').innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+
+        async function checkRecentUser() {
+            log('Checking the recent user signup...');
+            
+            // The user ID from your JSON
+            const userId = '6a41c0b1-0e37-4c9d-a5ee-0446a7643591';
+            
+            try {
+                // Check if user exists in our users table
+                const { data, error } = await supabaseClient
+                    .from('users')
+                    .select('*')
+                    .eq('id', userId);
+
+                if (error) {
+                    log('Error checking user: ' + error.message);
+                } else if (data.length === 0) {
+                    log('❌ User not found in users table - this confirms email confirmation hasn\'t completed');
+                } else {
+                    log('✅ User found in users table: ' + JSON.stringify(data[0], null, 2));
+                }
+            } catch (err) {
+                log('Unexpected error: ' + err.message);
+            }
+        }
+
+        async function resendConfirmation() {
+            log('Attempting to resend confirmation email...');
+            
+            try {
+                const { data, error } = await supabaseClient.auth.resend({
+                    type: 'signup',
+                    email: 'lourensstrauss99@live.com',
+                    options: {
+                        emailRedirectTo: 'https://lourensstrauss99.github.io/HomeBase/confirm.html'
+                    }
+                });
+
+                if (error) {
+                    log('Resend error: ' + error.message);
+                } else {
+                    log('✅ Confirmation email resent! Check your email again.');
+                    log('Response: ' + JSON.stringify(data, null, 2));
+                }
+            } catch (err) {
+                log('Resend failed: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>
