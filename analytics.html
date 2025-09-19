@@ -18,12 +18,8 @@
 <body class="theme-light">
     <div class="container">
         <h1>HomeBase Analytics</h1>
-        <nav>
-            <a href="index.html">Public Page</a> |
-            <a href="admin.html">Admin</a> |
-            <a href="activity.html">Activity</a> |
-            <a href="customize.html">Customize</a>
-        </nav>
+        
+        <!-- Navigation will be injected here by admin-nav.js -->
         
         <!-- Theme Selector -->
         <div class="theme-selector">
@@ -56,6 +52,12 @@
     
     <!-- Analytics Script -->
     <script src="analytics.js"></script>
-    <script src="script.js"></script>
+    <!-- Supabase UMD Bundle -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Admin Navigation -->
+    <script src="admin-nav.js"></script>
+    <script>injectAdminNavigation('analytics');</script>
+    <!-- Analytics Script -->
+    <script src="analytics.js"></script>
 </body>
 </html>

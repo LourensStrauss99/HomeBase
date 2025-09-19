@@ -25,13 +25,9 @@
 <body class="theme-light">
     <div class="container">
         <h1>Customize HomeBase</h1>
-        <nav>
-            <a href="index.html">Public Page</a> |
-            <a href="admin.html">Admin</a> |
-            <a href="analytics.html">Analytics</a> |
-            <a href="activity.html">Activity</a> |
-            <a href="settings.html">Settings</a>
-        </nav>
+        
+        <!-- Navigation will be injected here by admin-nav.js -->
+        
         <!-- Theme Selector -->
         <div class="theme-selector">
             <label for="theme-select">🎨 Choose Theme:</label>
@@ -55,6 +51,12 @@
     <!-- Supabase SDK -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
+    <!-- Customize Script -->
+    <!-- Supabase UMD Bundle -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Admin Navigation -->
+    <script src="admin-nav.js"></script>
+    <script>injectAdminNavigation('customize');</script>
     <!-- Customize Script -->
     <script src="customize.js"></script>
 </body>

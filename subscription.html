@@ -9,6 +9,9 @@
 <body class="light-theme">
     <div class="container">
         <h1>Choose Your Plan</h1>
+        
+        <!-- Navigation will be injected here by admin-nav.js -->
+        
         <p>Select the perfect plan for your HomeBase experience</p>
         
         <div class="plans-container">
@@ -64,12 +67,17 @@
             </div>
         </div>
 
-        <nav style="margin-top: 30px;">
-            <a href="admin.html">← Back to Dashboard</a>
-        </nav>
+        <!-- Old navigation removed - new navigation injected by admin-nav.js -->
         
         <button id="theme-toggle">Toggle Theme</button>
     </div>
+    
+    <!-- Supabase UMD Bundle -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Admin Navigation -->
+    <script src="admin-nav.js"></script>
+    <script>injectAdminNavigation('subscription');</script>
+    <!-- Subscription Script -->
     <script src="subscription.js"></script>
 </body>
 </html>

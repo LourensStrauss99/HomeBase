@@ -10,6 +10,8 @@
     <div class="container">
         <h1>Billing & Subscription</h1>
         
+        <!-- Navigation will be injected here by admin-nav.js -->
+        
         <div class="billing-info">
             <div class="subscription-status" id="current-subscription">
                 <!-- Current subscription info -->
@@ -28,13 +30,17 @@
             </div>
         </div>
 
-        <nav style="margin-top: 30px;">
-            <a href="admin.html">← Back to Dashboard</a> |
-            <a href="subscription.html">Change Plan</a>
-        </nav>
+        <!-- Old navigation removed - new navigation injected by admin-nav.js -->
         
         <button id="theme-toggle">Toggle Theme</button>
     </div>
+    
+    <!-- Supabase UMD Bundle -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Admin Navigation -->
+    <script src="admin-nav.js"></script>
+    <script>injectAdminNavigation('billing');</script>
+    <!-- Billing Script -->
     <script src="billing.js"></script>
 </body>
 </html>
